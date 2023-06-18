@@ -1,6 +1,7 @@
 #include "config.h"
 #include "globals.hpp"
 #include <wups.h>
+#include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <string_view>
 
@@ -15,6 +16,7 @@ void initConfig()
         gAutolaunchNoDRCSupport = DISPLAY_OPTION_CHOOSE;
         gDisplayOptionsOrder = DISPLAY_OPTIONS_ORDER_RECENT;
         gSetResolution = SET_RESOLUTION_NONE;
+        gUseCustomDialogs = true;
     } else {
         // Try to get value from storage
         if (WUPS_GetInt(nullptr, "gAutolaunchDRCSupported", reinterpret_cast<int32_t *>(&gAutolaunchDRCSupported)) != WUPS_STORAGE_ERROR_SUCCESS) {
@@ -38,8 +40,23 @@ void initConfig()
             WUPS_StoreInt(nullptr, "gSetResolution", (int32_t) gSetResolution);
         }
 
+        if (WUPS_GetBool(nullptr, "gUseCustomDialogs", &gUseCustomDialogs) != WUPS_STORAGE_ERROR_SUCCESS) {
+            gUseCustomDialogs = true;
+            WUPS_StoreBool(nullptr, "gUseCustomDialogs", gUseCustomDialogs);
+        }
+
         // Close storage
         WUPS_CloseStorage();
+    }
+}
+
+void boolItemCallback(ConfigItemBoolean *item, bool newValue)
+{
+    if (item && item->configId) {
+        if (std::string_view(item->configId) == "gUseCustomDialogs") {
+            gUseCustomDialogs = newValue;
+            WUPS_StoreBool(nullptr, item->configId, gUseCustomDialogs);
+        }
     }
 }
 
@@ -85,9 +102,11 @@ WUPS_GET_CONFIG()
         return config;
     }
 
+    // Category: Settings
     WUPSConfigCategoryHandle settings;
     WUPSConfig_AddCategoryByNameHandled(config, "Settings", &settings);
 
+    // Autolaunch (GamePad supported)
     ConfigItemMultipleValuesPair autolaunchDRCSupportedValues[5];
     autolaunchDRCSupportedValues[0].value       = DISPLAY_OPTION_CHOOSE;
     autolaunchDRCSupportedValues[0].valueName   = (char *) "Choose each time";
@@ -117,6 +136,7 @@ WUPS_GET_CONFIG()
     WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gAutolaunchDRCSupported", "Autolaunch (\ue087 supported)", defaultIndex, autolaunchDRCSupportedValues,
                                                      5, &multipleValueItemCallback);
 
+    // Autolaunch (GamePad not supported)
     ConfigItemMultipleValuesPair autolaunchNoDRCSupportValues[4];
     autolaunchNoDRCSupportValues[0].value       = DISPLAY_OPTION_CHOOSE;
     autolaunchNoDRCSupportValues[0].valueName   = (char *) "Choose each time";
@@ -143,6 +163,7 @@ WUPS_GET_CONFIG()
     WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gAutolaunchNoDRCSupport", "Autolaunch (\ue087 not supported)", defaultIndex, autolaunchNoDRCSupportValues,
                                                      4, &multipleValueItemCallback);
 
+    // Set resolution
     ConfigItemMultipleValuesPair setResolutionValues[3];
     setResolutionValues[0].value       = SET_RESOLUTION_NONE;
     setResolutionValues[0].valueName   = (char *) "Same as Wii U";
@@ -166,6 +187,7 @@ WUPS_GET_CONFIG()
     WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gSetResolution", "Set resolution", defaultIndex, setResolutionValues,
                                                      3, &multipleValueItemCallback);
 
+    // Display options order
     ConfigItemMultipleValuesPair displayOptionsOrderValues[2];
     displayOptionsOrderValues[0].value       = DISPLAY_OPTIONS_ORDER_DEFAULT;
     displayOptionsOrderValues[0].valueName   = (char *) "Default";
@@ -185,6 +207,12 @@ WUPS_GET_CONFIG()
 
     WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gDisplayOptionsOrder", "Display options order", defaultIndex, displayOptionsOrderValues,
                                                      2, &multipleValueItemCallback);
+
+    // Category: Advanced options
+    WUPSConfigCategoryHandle advancedOptions;
+    WUPSConfig_AddCategoryByNameHandled(config, "Advanced options", &advancedOptions);
+
+    WUPSConfigItemBoolean_AddToCategoryHandled(config, advancedOptions, "gUseCustomDialogs", "Use custom dialogs", gUseCustomDialogs, &boolItemCallback);
 
     return config;
 }

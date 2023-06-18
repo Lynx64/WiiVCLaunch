@@ -1,6 +1,7 @@
 #include "main.h"
 #include "config.h"
 #include "globals.hpp"
+#include "logger.h"
 #include <wups.h>
 #include <coreinit/mcp.h>
 #include <nn/acp/title.h>
@@ -173,8 +174,11 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 {
     int32_t result = real_MCP_TitleList(handle, outTitleCount, titleList, size);
 
-    for (uint32_t i = 0; i < *outTitleCount; i++) {
-        if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
+    if (gUseCustomDialogs) {
+        uint32_t titleCount = *outTitleCount;
+        for (uint32_t i = 0; i < titleCount; i++) {
+            if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
+        }
     }
 
     return result;
@@ -183,7 +187,7 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 {
     int32_t result = real_ACPGetLaunchMetaXml(metaXml);
-    if (result != ACP_RESULT_SUCCESS || metaXml == nullptr) {
+    if (result != ACP_RESULT_SUCCESS) {
         sLaunchingWiiGame = false;
         return result;
     }
@@ -203,6 +207,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         return result;
     }
     sLaunchingWiiGame = true;
+
+    if (!gUseCustomDialogs) return result;
 
     //check if A button held, if so then skip autolaunch check
     VPADStatus vpadStatus;
