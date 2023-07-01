@@ -109,7 +109,7 @@ WUPS_GET_CONFIG()
     // Autolaunch (GamePad supported)
     ConfigItemMultipleValuesPair autolaunchDRCSupportedValues[5];
     autolaunchDRCSupportedValues[0].value       = DISPLAY_OPTION_CHOOSE;
-    autolaunchDRCSupportedValues[0].valueName   = (char *) "Choose each time";
+    autolaunchDRCSupportedValues[0].valueName   = (char *) "Select each time";
 
     autolaunchDRCSupportedValues[1].value       = DISPLAY_OPTION_USE_DRC;
     autolaunchDRCSupportedValues[1].valueName   = (char *) "Use \ue087 as controller";
@@ -139,7 +139,7 @@ WUPS_GET_CONFIG()
     // Autolaunch (GamePad not supported)
     ConfigItemMultipleValuesPair autolaunchNoDRCSupportValues[4];
     autolaunchNoDRCSupportValues[0].value       = DISPLAY_OPTION_CHOOSE;
-    autolaunchNoDRCSupportValues[0].valueName   = (char *) "Choose each time";
+    autolaunchNoDRCSupportValues[0].valueName   = (char *) "Select each time";
 
     autolaunchNoDRCSupportValues[1].value       = DISPLAY_OPTION_TV;
     autolaunchNoDRCSupportValues[1].valueName   = (char *) "TV Only";

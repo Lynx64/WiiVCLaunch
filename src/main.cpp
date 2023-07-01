@@ -329,7 +329,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     nn::erreula::AppearArg appearArg;
     appearArg.errorArg.renderTarget = nn::erreula::RenderTarget::Both;
     appearArg.errorArg.controllerType = nn::erreula::ControllerType::DrcGamepad;
-    appearArg.errorArg.errorMessage = u"\n\nChoose a display option.\n\n\n\ue07d More options";
+    appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
 
     bool redraw = true;
     bool activateCursor = true;
