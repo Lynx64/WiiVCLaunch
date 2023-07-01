@@ -34,14 +34,11 @@ static OSDynLoad_Module erreulaModule                                           
 //ErrEula functions copied from <erreula/rpl_interface.h> in wut
 static void (*dyn_ErrEulaAppearError)(const nn::erreula::AppearArg &arg)            = nullptr;
 static void (*dyn_ErrEulaCalc)(const nn::erreula::ControllerInfo &controllerInfo)   = nullptr;
-static void (*dyn_ErrEulaCreate)(void *workMemory, nn::erreula::RegionType region, nn::erreula::LangType language, FSClient *fsClient) = nullptr;
-static void (*dyn_ErrEulaDestroy)()                                                 = nullptr;
 static void (*dyn_ErrEulaDisappearError)()                                          = nullptr;
 static nn::erreula::State (*dyn_ErrEulaGetStateErrorViewer)()                       = nullptr;
 static bool (*dyn_ErrEulaIsDecideSelectButtonError)()                               = nullptr;
 static bool (*dyn_ErrEulaIsDecideSelectLeftButtonError)()                           = nullptr;
 static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                          = nullptr;
-static int32_t (*dyn_ErrEulaGetResultCode)()                                        = nullptr;
 
 static bool sLaunchingWiiGame = false;
 
