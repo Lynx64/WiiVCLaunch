@@ -244,10 +244,18 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
                 CMPTAcctSetDrcCtrlEnabled(0);
                 CMPTAcctSetScreenType((CmptScreenType) gAutolaunchDRCSupported);
             }
+
+            if (CMPTCheckScreenState() < 0)
+                CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+
             return result;
         } else if (metaXml->drc_use != 65537 && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             CMPTAcctSetDrcCtrlEnabled(0);
             CMPTAcctSetScreenType((CmptScreenType) gAutolaunchNoDRCSupport);
+
+            if (CMPTCheckScreenState() < 0)
+                CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+
             return result;
         }
     }
@@ -420,6 +428,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         CMPTAcctSetDrcCtrlEnabled(0);
         CMPTAcctSetScreenType((CmptScreenType) selectedDisplay);
     }
+
+    if (CMPTCheckScreenState() < 0)
+        CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
 
     //check if we need to update recent order
     if (selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
