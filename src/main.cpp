@@ -213,6 +213,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     KPADStatus kpadStatus[4];
     KPADError kpadError[4];
     uint32_t buttonsHeld = 0;
+    bool activateCursor = true;
 
     VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
     if (vpadError == VPAD_READ_SUCCESS) {
@@ -255,6 +256,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
             return result;
         }
+    } else {
+        activateCursor = false;
     }
 
     //load erreula
@@ -329,7 +332,6 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
 
     bool redraw = true;
-    bool activateCursor = true;
     bool onFirstPage = true;
     int32_t selectedDisplay = position[0];
 
@@ -346,7 +348,6 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         
         if (redraw) {
             redraw = false;
-            activateCursor = true;
 
             if (onFirstPage) {
                 appearArg.errorArg.button1Label = displayOptionToString(position[0]);
@@ -409,6 +410,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
         if (buttonsHeld & VPAD_BUTTON_DOWN || buttonsHeld & VPAD_BUTTON_UP) {
             redraw = true;
+            activateCursor = true;
             onFirstPage = !onFirstPage;
             dyn_ErrEulaDisappearError();
         }
