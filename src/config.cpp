@@ -12,11 +12,6 @@ void initConfig()
     // Open storage to read values
     if (WUPS_OpenStorage() != WUPS_STORAGE_ERROR_SUCCESS) {
         //failed to open storage - use default values
-        gAutolaunchDRCSupported = DISPLAY_OPTION_CHOOSE;
-        gAutolaunchNoDRCSupport = DISPLAY_OPTION_CHOOSE;
-        gDisplayOptionsOrder = DISPLAY_OPTIONS_ORDER_RECENT;
-        gSetResolution = SET_RESOLUTION_NONE;
-        gUseCustomDialogs = true;
     } else {
         // Try to get value from storage
         if (WUPS_GetInt(nullptr, "gAutolaunchDRCSupported", reinterpret_cast<int32_t *>(&gAutolaunchDRCSupported)) != WUPS_STORAGE_ERROR_SUCCESS) {

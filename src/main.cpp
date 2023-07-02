@@ -208,8 +208,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (!gUseCustomDialogs) return result;
 
     //check if A button held, if so then skip autolaunch check
-    VPADStatus vpadStatus;
-    VPADReadError vpadError;
+    VPADStatus vpadStatus {};
+    VPADReadError vpadError = VPAD_READ_UNINITIALIZED;
     KPADStatus kpadStatus[4];
     KPADError kpadError[4];
     uint32_t buttonsHeld = 0;
