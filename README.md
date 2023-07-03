@@ -1,4 +1,11 @@
 # Wii VC Launch
+## Features
+- Select a display option with any controller
+- Autolaunch into a specific display option bypassing all dialogs
+  - Keep A pressed when launching a game to force open the Select a display option dialogs
+- Set resolution to 480p or 720p (note that it only works with HDMI)
+
+Note that it falls back to the GamePad screen if no TV is connected.
 
 ## Installation
 Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases)<br/>
