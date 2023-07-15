@@ -163,6 +163,20 @@ static void setResolution()
     }
 }
 
+static void setDisplay(int32_t displayOption)
+{
+    if (displayOption == DISPLAY_OPTION_USE_DRC) {
+        CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_BOTH);
+        CMPTAcctSetDrcCtrlEnabled(1);
+    } else {
+        CMPTAcctSetDrcCtrlEnabled(0);
+        CMPTAcctSetScreenType((CmptScreenType) displayOption);
+    }
+
+    if (CMPTCheckScreenState() < 0)
+        CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+}
+
 ON_APPLICATION_START()
 {
     if (sLaunchingWiiGame) {
@@ -236,24 +250,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (!(buttonsHeld & VPAD_BUTTON_A)) {
         //check autolaunch
         if (metaXml->drc_use == 65537 && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
-            if (gAutolaunchDRCSupported == DISPLAY_OPTION_USE_DRC) {
-                CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_BOTH);
-                CMPTAcctSetDrcCtrlEnabled(1);
-            } else {
-                CMPTAcctSetDrcCtrlEnabled(0);
-                CMPTAcctSetScreenType((CmptScreenType) gAutolaunchDRCSupported);
-            }
-
-            if (CMPTCheckScreenState() < 0)
-                CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+            setDisplay(gAutolaunchDRCSupported);
 
             return result;
         } else if (metaXml->drc_use != 65537 && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
-            CMPTAcctSetDrcCtrlEnabled(0);
-            CMPTAcctSetScreenType((CmptScreenType) gAutolaunchNoDRCSupport);
-
-            if (CMPTCheckScreenState() < 0)
-                CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+            setDisplay(gAutolaunchNoDRCSupport);
 
             return result;
         }
@@ -421,16 +422,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     dyn_ErrEulaDisappearError();
     OSDynLoad_Release(erreulaModule);
 
-    if (selectedDisplay == DISPLAY_OPTION_USE_DRC) {
-        CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_BOTH);
-        CMPTAcctSetDrcCtrlEnabled(1);
-    } else {
-        CMPTAcctSetDrcCtrlEnabled(0);
-        CMPTAcctSetScreenType((CmptScreenType) selectedDisplay);
-    }
-
-    if (CMPTCheckScreenState() < 0)
-        CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
+    setDisplay(selectedDisplay);
 
     //check if we need to update recent order
     if (selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
