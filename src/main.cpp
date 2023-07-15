@@ -29,6 +29,7 @@ INITIALIZE_PLUGIN()
 extern "C" void AVMGetCurrentPort(int32_t *port);
 extern "C" void AVMSetTVScanResolution(int32_t res);
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t);
+extern "C" void AVMWaitTVEComp(void);
 
 static OSDynLoad_Module erreulaModule                                               = nullptr;
 //ErrEula functions copied from <erreula/rpl_interface.h> in wut
@@ -146,23 +147,26 @@ static const char16_t * displayOptionToString(int32_t displayOption)
     }
 }
 
+static void setResolution()
+{
+    //adapted from https://github.com/WiiDatabase/Boot2vWii/blob/a7c18a768f5b2183cd94e42f2af81a90f13b8eb1/source/main.c#LL30C10-L30C10
+    if (gSetResolution != SET_RESOLUTION_NONE) {
+        int32_t outPort = 0;
+        AVMGetCurrentPort(&outPort);
+
+        if (outPort > 3) {
+            outPort = 0;
+        }
+        if (outPort < 2) {
+            AVMSetTVScanResolution(gSetResolution);
+        }
+    }
+}
+
 ON_APPLICATION_START()
 {
     if (sLaunchingWiiGame) {
         sLaunchingWiiGame = false;
-        //set resolution
-        //adapted from https://github.com/WiiDatabase/Boot2vWii/blob/a7c18a768f5b2183cd94e42f2af81a90f13b8eb1/source/main.c#LL30C10-L30C10
-        if (gSetResolution != SET_RESOLUTION_NONE) {
-            int32_t outPort = 0;
-            AVMGetCurrentPort(&outPort);
-
-            if (outPort > 3) {
-                outPort = 0;
-            }
-            if (outPort < 2) {
-                AVMSetTVScanResolution(gSetResolution);
-            }
-        }
     }
 }
 
@@ -189,23 +193,20 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         return result;
     }
 
+    if (sLaunchingWiiGame || !gUseCustomDialogs) {
+        //the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
+        return result;
+    }
+    sLaunchingWiiGame = true;
+
     //check if wii game launched, if not then set launchingwiigame to false and return
     MCPTitleListType titleInfo;
     int32_t mcpHandle = MCP_Open();
     MCPError mcpError = MCP_GetTitleInfo(mcpHandle, metaXml->title_id, &titleInfo);
     MCP_Close(mcpHandle);
     if (mcpError != 0 || titleInfo.appType != MCP_APP_TYPE_GAME_WII) {
-        sLaunchingWiiGame = false;
         return result;
     }
-
-    if (sLaunchingWiiGame) {
-        //the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
-        return result;
-    }
-    sLaunchingWiiGame = true;
-
-    if (!gUseCustomDialogs) return result;
 
     //check if A button held, if so then skip autolaunch check
     VPADStatus vpadStatus {};
@@ -455,6 +456,22 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     return result;
 }
 
+DECL_FUNCTION(int32_t, CMPTExLaunch)
+{
+    setResolution();
+    AVMWaitTVEComp();
+    return real_CMPTExLaunch();
+}
+
+DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
+{
+    setResolution();
+    return real_CMPTLaunchMenu(dataBuffer, bufferSize);
+}
+
 //replace only for Wii U Menu
 WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_TitleList, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
+WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
+
+WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExLaunch, WUPS_FP_TARGET_PROCESS_GAME);
