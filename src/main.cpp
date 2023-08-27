@@ -213,7 +213,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     }
     sLaunchingWiiGame = true;
 
-    //check if wii game launched, if not then set launchingwiigame to false and return
+    //check if wii game launched, if not then return
     MCPTitleListType titleInfo;
     int32_t mcpHandle = MCP_Open();
     MCPError mcpError = MCP_GetTitleInfo(mcpHandle, metaXml->title_id, &titleInfo);
@@ -221,6 +221,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (mcpError != 0 || titleInfo.appType != MCP_APP_TYPE_GAME_WII) {
         return result;
     }
+
+    //read drc_use value
+    const bool DRC_USE = metaXml->drc_use == 65537;
 
     //check if A button held, if so then skip autolaunch check
     VPADStatus vpadStatus {};
@@ -249,11 +252,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
     if (!(buttonsHeld & VPAD_BUTTON_A)) {
         //check autolaunch
-        if (metaXml->drc_use == 65537 && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
+        if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
 
             return result;
-        } else if (metaXml->drc_use != 65537 && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
+        } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
 
             return result;
@@ -304,17 +307,17 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT) {
         int32_t positionI = 0;
         for (int32_t i = 0; i < 4; i++) {
-            if (recent[i] == DISPLAY_OPTION_USE_DRC && metaXml->drc_use != 65537) {
+            if (recent[i] == DISPLAY_OPTION_USE_DRC && !DRC_USE) {
                 continue;
             }
             position[positionI] = recent[i];
             positionI++;
         }
 
-        if (metaXml->drc_use != 65537)
+        if (!DRC_USE)
             position[3] = position[2];
     } else { //DISPLAY_OPTIONS_ORDER_DEFAULT
-        if (metaXml->drc_use == 65537) {
+        if (DRC_USE) {
             position[0] = DISPLAY_OPTION_USE_DRC;
             position[1] = DISPLAY_OPTION_TV;
             position[2] = DISPLAY_OPTION_BOTH;
@@ -355,7 +358,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
                 appearArg.errorArg.button1Label = displayOptionToString(position[0]);
                 appearArg.errorArg.button2Label = displayOptionToString(position[1]);
                 appearArg.errorArg.errorType = nn::erreula::ErrorType::Message2Button;
-            } else if (metaXml->drc_use == 65537) {
+            } else if (DRC_USE) {
                 appearArg.errorArg.button1Label = displayOptionToString(position[2]);
                 appearArg.errorArg.button2Label = displayOptionToString(position[3]);
                 appearArg.errorArg.errorType = nn::erreula::ErrorType::Message2Button;
