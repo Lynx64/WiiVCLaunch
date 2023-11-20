@@ -26,10 +26,12 @@ INITIALIZE_PLUGIN()
     initConfig();
 }
 
-extern "C" void AVMGetCurrentPort(int32_t *port);
-extern "C" void AVMSetTVScanResolution(int32_t res);
-extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t);
+extern "C" int32_t AVMGetCurrentPort(int32_t *outPort);
+extern "C" int32_t AVMSetTVScanResolution(int32_t res);
 extern "C" void AVMWaitTVEComp(void);
+extern "C" void AVMGetHDMIState(int32_t *state);
+
+extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
 static OSDynLoad_Module erreulaModule                                               = nullptr;
 //ErrEula functions copied from <erreula/rpl_interface.h> in wut
@@ -141,7 +143,7 @@ static const char16_t * displayOptionToString(int32_t displayOption)
     case DISPLAY_OPTION_BOTH:
         return u"TV and \ue087";
     case DISPLAY_OPTION_DRC:
-        return u"\ue087 only";
+        return u"\ue087 screen only";
     default:
         return u"";
     }
@@ -281,64 +283,32 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         return result;
     }
 
+    int32_t recent[4] = {DISPLAY_OPTION_USE_DRC, DISPLAY_OPTION_TV, DISPLAY_OPTION_BOTH, DISPLAY_OPTION_DRC};
     //read recent order
-    if (WUPS_OpenStorage() != WUPS_STORAGE_ERROR_SUCCESS) {
-        OSDynLoad_Release(erreulaModule);
-        return result;
-    }
-    
-    int32_t recent[4];
-    if (WUPS_GetInt(nullptr, "recent0", &recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
-        WUPS_GetInt(nullptr, "recent1", &recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
-        WUPS_GetInt(nullptr, "recent2", &recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
-        WUPS_GetInt(nullptr, "recent3", &recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
-        
-        //failed to read values from storage - use default values
-        recent[0] = DISPLAY_OPTION_USE_DRC;
-        recent[1] = DISPLAY_OPTION_TV;
-        recent[2] = DISPLAY_OPTION_BOTH;
-        recent[3] = DISPLAY_OPTION_DRC;
-    }
-
-    WUPS_CloseStorage();
-
-    //map display options to erreula button positions
-    int32_t position[4];
-    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT) {
-        int32_t positionI = 0;
-        for (int32_t i = 0; i < 4; i++) {
-            if (recent[i] == DISPLAY_OPTION_USE_DRC && !DRC_USE) {
-                continue;
-            }
-            position[positionI] = recent[i];
-            positionI++;
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
+        if (WUPS_GetInt(nullptr, "recent0", &recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPS_GetInt(nullptr, "recent1", &recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPS_GetInt(nullptr, "recent2", &recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPS_GetInt(nullptr, "recent3", &recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
+            
+            //failed to read values from storage - use default values
+            recent[0] = DISPLAY_OPTION_USE_DRC;
+            recent[1] = DISPLAY_OPTION_TV;
+            recent[2] = DISPLAY_OPTION_BOTH;
+            recent[3] = DISPLAY_OPTION_DRC;
         }
-
-        if (!DRC_USE)
-            position[3] = position[2];
-    } else { //DISPLAY_OPTIONS_ORDER_DEFAULT
-        if (DRC_USE) {
-            position[0] = DISPLAY_OPTION_USE_DRC;
-            position[1] = DISPLAY_OPTION_TV;
-            position[2] = DISPLAY_OPTION_BOTH;
-            position[3] = DISPLAY_OPTION_DRC;
-        } else {
-            position[0] = DISPLAY_OPTION_TV;
-            position[1] = DISPLAY_OPTION_BOTH;
-            position[2] = DISPLAY_OPTION_DRC;
-            position[3] = position[2];
-        }
+        WUPS_CloseStorage();
     }
 
     //set the values for the error viewer that we will keep the same
     nn::erreula::AppearArg appearArg;
     appearArg.errorArg.renderTarget = nn::erreula::RenderTarget::Both;
     appearArg.errorArg.controllerType = nn::erreula::ControllerType::DrcGamepad;
-    appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
 
     bool redraw = true;
     bool onFirstPage = true;
-    int32_t selectedDisplay = position[0];
+    int32_t selectedDisplay = recent[0];
+    int32_t position[2] = {recent[0], recent[1]};
 
     while (true) {
         OSSleepTicks(OSMillisecondsToTicks(16));
@@ -354,28 +324,58 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         if (redraw) {
             redraw = false;
 
-            if (onFirstPage) {
-                appearArg.errorArg.button1Label = displayOptionToString(position[0]);
+            uint32_t positionI = 0;
+            uint32_t skippedOptionsCount = 0;
+            bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
+            int32_t outPort = 1; //default to non-hdmi incase getting current port fails
+            AVMGetCurrentPort(&outPort);
+            if (outPort == 0) { //HDMI
+                int32_t hdmiState = 1;
+                AVMGetHDMIState(&hdmiState);
+                if (hdmiState != 10 && hdmiState != 8)
+                    tvConnected = false;
+            }
+            
+            for (uint32_t recentI = 0; recentI < 4; recentI++) {
+                if (!DRC_USE && recent[recentI] == DISPLAY_OPTION_USE_DRC)
+                    continue;
+                if (tvConnected && !onFirstPage && skippedOptionsCount < 2) {
+                    skippedOptionsCount++;
+                    continue;
+                } else if (!tvConnected && (recent[recentI] == DISPLAY_OPTION_TV || recent[recentI] == DISPLAY_OPTION_BOTH)) {
+                    continue;
+                }
+                position[positionI] = recent[recentI];
+                positionI++;
+                if (positionI > 1)
+                    break;
+            }
+
+            if (positionI == 0) { //should never happen - filter returned 0 options
+                break;
+            } else if (positionI == 1) {
+                position[1] = position[0];
+                appearArg.errorArg.errorType = nn::erreula::ErrorType::Message1Button;
+            } else {
                 appearArg.errorArg.button2Label = displayOptionToString(position[1]);
                 appearArg.errorArg.errorType = nn::erreula::ErrorType::Message2Button;
-            } else if (DRC_USE) {
-                appearArg.errorArg.button1Label = displayOptionToString(position[2]);
-                appearArg.errorArg.button2Label = displayOptionToString(position[3]);
-                appearArg.errorArg.errorType = nn::erreula::ErrorType::Message2Button;
+            }
+            appearArg.errorArg.button1Label = displayOptionToString(position[0]);
+            if (tvConnected) {
+                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
             } else {
-                appearArg.errorArg.button1Label = displayOptionToString(position[2]);
-                appearArg.errorArg.errorType = nn::erreula::ErrorType::Message1Button;
+                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d Refresh";
             }
             dyn_ErrEulaAppearError(appearArg);
             continue;
         }
 
         if (dyn_ErrEulaIsDecideSelectLeftButtonError()) {
-            selectedDisplay = onFirstPage ? position[0] : position[2];
+            selectedDisplay = position[0];
             break;
         } else if (dyn_ErrEulaIsDecideSelectRightButtonError()) {
             //note when using Message1Button, IsDecideSelectRight returns true, IsDecideSelectLeft returns false
-            selectedDisplay = onFirstPage ? position[1] : position[3];
+            selectedDisplay = position[1];
             break;
         }
 
@@ -428,7 +428,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     setDisplay(selectedDisplay);
 
     //check if we need to update recent order
-    if (selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
         //update recent order
         if (selectedDisplay != recent[1]) {
             if (selectedDisplay != recent[2]) {
