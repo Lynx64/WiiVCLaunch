@@ -116,7 +116,7 @@ WUPS_GET_CONFIG()
     autolaunchDRCSupportedValues[3].valueName   = (char *) "TV and \ue087";
 
     autolaunchDRCSupportedValues[4].value       = DISPLAY_OPTION_DRC;
-    autolaunchDRCSupportedValues[4].valueName   = (char *) "\ue087 only";
+    autolaunchDRCSupportedValues[4].valueName   = (char *) "\ue087 screen only";
 
     int32_t defaultIndex = 0;
     int32_t curIndex = 0;
@@ -143,7 +143,7 @@ WUPS_GET_CONFIG()
     autolaunchNoDRCSupportValues[2].valueName   = (char *) "TV and \ue087";
 
     autolaunchNoDRCSupportValues[3].value       = DISPLAY_OPTION_DRC;
-    autolaunchNoDRCSupportValues[3].valueName   = (char *) "\ue087 only";
+    autolaunchNoDRCSupportValues[3].valueName   = (char *) "\ue087 screen only";
 
     defaultIndex = 0;
     curIndex = 0;
