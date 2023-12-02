@@ -30,6 +30,7 @@ extern "C" int32_t AVMGetCurrentPort(int32_t *outPort);
 extern "C" int32_t AVMSetTVScanResolution(int32_t res);
 extern "C" void AVMWaitTVEComp(void);
 extern "C" void AVMGetHDMIState(int32_t *state);
+extern "C" int32_t AVMSetTVAspectRatio(int32_t aspect);
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
@@ -151,16 +152,16 @@ static const char16_t * displayOptionToString(int32_t displayOption)
 
 static void setResolution()
 {
-    //adapted from https://github.com/WiiDatabase/Boot2vWii/blob/a7c18a768f5b2183cd94e42f2af81a90f13b8eb1/source/main.c#LL30C10-L30C10
     if (gSetResolution != SET_RESOLUTION_NONE) {
         int32_t outPort = 0;
         AVMGetCurrentPort(&outPort);
-
-        if (outPort > 3) {
-            outPort = 0;
-        }
-        if (outPort < 2) {
-            AVMSetTVScanResolution(gSetResolution);
+        if (outPort == 0) { //HDMI
+            if (gSetResolution == SET_RESOLUTION_480P_43) {
+                AVMSetTVScanResolution(SET_RESOLUTION_480P);
+                AVMSetTVAspectRatio(0); //4:3
+            } else {
+                AVMSetTVScanResolution(gSetResolution);
+            }
         }
     }
 }
@@ -451,11 +452,10 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     return result;
 }
 
-DECL_FUNCTION(int32_t, CMPTExLaunch)
+DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t unk3)
 {
     setResolution();
-    AVMWaitTVEComp();
-    return real_CMPTExLaunch();
+    return real_CMPTExPrepareLaunch(unk1, unk2, unk3);
 }
 
 DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
@@ -476,4 +476,4 @@ WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, A
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTAcctSetDrcCtrlEnabled, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTAcctSetDrcCtrlEnabled, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 
-WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExLaunch, WUPS_FP_TARGET_PROCESS_GAME);
+WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExPrepareLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExPrepareLaunch, WUPS_FP_TARGET_PROCESS_GAME);

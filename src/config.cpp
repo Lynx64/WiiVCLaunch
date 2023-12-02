@@ -159,15 +159,18 @@ WUPS_GET_CONFIG()
                                                      4, &multipleValueItemCallback);
 
     // Set resolution
-    ConfigItemMultipleValuesPair setResolutionValues[3];
+    ConfigItemMultipleValuesPair setResolutionValues[4];
     setResolutionValues[0].value       = SET_RESOLUTION_NONE;
     setResolutionValues[0].valueName   = (char *) "Same as Wii U";
 
     setResolutionValues[1].value       = SET_RESOLUTION_480P;
     setResolutionValues[1].valueName   = (char *) "480p";
 
-    setResolutionValues[2].value       = SET_RESOLUTION_720P;
-    setResolutionValues[2].valueName   = (char *) "720p";
+    setResolutionValues[2].value       = SET_RESOLUTION_480P_43;
+    setResolutionValues[2].valueName   = (char *) "480p (4:3)";
+
+    setResolutionValues[3].value       = SET_RESOLUTION_720P;
+    setResolutionValues[3].valueName   = (char *) "720p";
 
     defaultIndex = 0;
     curIndex = 0;
@@ -180,7 +183,7 @@ WUPS_GET_CONFIG()
     }
 
     WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gSetResolution", "Set resolution", defaultIndex, setResolutionValues,
-                                                     3, &multipleValueItemCallback);
+                                                     4, &multipleValueItemCallback);
 
     // Display options order
     ConfigItemMultipleValuesPair displayOptionsOrderValues[2];
