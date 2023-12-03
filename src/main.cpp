@@ -229,25 +229,24 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     const bool DRC_USE = metaXml->drc_use == 65537;
 
     //check if A button held, if so then skip autolaunch check
-    VPADStatus vpadStatus {};
+    VPADStatus vpadStatus{};
     VPADReadError vpadError = VPAD_READ_UNINITIALIZED;
     KPADStatus kpadStatus[4];
     KPADError kpadError[4];
     uint32_t buttonsHeld = 0;
     bool activateCursor = true;
 
-    VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
-    if (vpadError == VPAD_READ_SUCCESS) {
+    if (VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError) > 0 && vpadError == VPAD_READ_SUCCESS) {
         buttonsHeld = vpadStatus.hold;
     }
 
-    for (int32_t i = 0; i < 4; i++) {
-        if (KPADReadEx((KPADChan) i, &kpadStatus[i], 1, &kpadError[i]) > 0) {
-            if (kpadError[i] == KPAD_ERROR_OK && kpadStatus[i].extensionType != 0xFF) {
-                if (kpadStatus[i].extensionType == WPAD_EXT_CORE || kpadStatus[i].extensionType == WPAD_EXT_NUNCHUK) {
-                    buttonsHeld |= remapWiiMoteButtons(kpadStatus[i].hold);
+    for (int32_t chan = 0; chan < 4; chan++) {
+        if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
+            if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
+                if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK) {
+                    buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
                 } else {
-                    buttonsHeld |= remapClassicButtons(kpadStatus[i].classic.hold);
+                    buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
                 }
             }
         }
@@ -257,11 +256,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         //check autolaunch
         if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
-
             return result;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
-
             return result;
         }
     } else {
@@ -382,18 +379,17 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
         buttonsHeld = 0;
 
-        VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
-        if (vpadError == VPAD_READ_SUCCESS) {
+        if (VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError) > 0 && vpadError == VPAD_READ_SUCCESS) {
             buttonsHeld = vpadStatus.hold;
         }
 
-        for (int32_t i = 0; i < 4; i++) {
-            if (KPADReadEx((KPADChan) i, &kpadStatus[i], 1, &kpadError[i]) > 0) {
-                if (kpadError[i] == KPAD_ERROR_OK && kpadStatus[i].extensionType != 0xFF) {
-                    if (kpadStatus[i].extensionType == WPAD_EXT_CORE || kpadStatus[i].extensionType == WPAD_EXT_NUNCHUK) {
-                        buttonsHeld |= remapWiiMoteButtons(kpadStatus[i].hold);
+        for (int32_t chan = 0; chan < 4; chan++) {
+            if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
+                if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
+                    if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK) {
+                        buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
                     } else {
-                        buttonsHeld |= remapClassicButtons(kpadStatus[i].classic.hold);
+                        buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
                     }
                 }
             }
