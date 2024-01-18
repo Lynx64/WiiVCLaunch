@@ -26,11 +26,11 @@ INITIALIZE_PLUGIN()
     initConfig();
 }
 
-extern "C" int32_t AVMGetCurrentPort(int32_t *outPort);
-extern "C" int32_t AVMSetTVScanResolution(int32_t res);
-extern "C" void AVMWaitTVEComp(void);
-extern "C" void AVMGetHDMIState(int32_t *state);
-extern "C" int32_t AVMSetTVAspectRatio(int32_t aspect);
+extern "C" uint32_t TVEGetCurrentPort(void);
+
+extern "C" int32_t AVMSetTVScanResolution(uint32_t resolution);
+extern "C" void AVMGetHDMIState(uint32_t *outState);
+extern "C" BOOL AVMSetTVAspectRatio(uint32_t aspectRatio);
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
@@ -153,8 +153,7 @@ static const char16_t * displayOptionToString(int32_t displayOption)
 static void setResolution()
 {
     if (gSetResolution != SET_RESOLUTION_NONE) {
-        int32_t outPort = 0;
-        AVMGetCurrentPort(&outPort);
+        uint32_t outPort = TVEGetCurrentPort();
         if (outPort == 0) { //HDMI
             if (gSetResolution == SET_RESOLUTION_480P_43) {
                 AVMSetTVScanResolution(SET_RESOLUTION_480P);
@@ -324,10 +323,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             uint32_t positionI = 0;
             uint32_t skippedOptionsCount = 0;
             bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
-            int32_t outPort = 1; //default to non-hdmi incase getting current port fails
-            AVMGetCurrentPort(&outPort);
-            if (outPort == 0) { //HDMI
-                int32_t hdmiState = 1;
+            if (TVEGetCurrentPort() == 0) { //HDMI
+                uint32_t hdmiState = 1;
                 AVMGetHDMIState(&hdmiState);
                 if (hdmiState != 10 && hdmiState != 8)
                     tvConnected = false;
