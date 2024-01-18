@@ -20,7 +20,7 @@ WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
 
-// Called when exiting the plugin loader
+// Gets called ONCE when the plugin was loaded
 INITIALIZE_PLUGIN()
 {
     initConfig();
@@ -131,7 +131,7 @@ static uint32_t remapClassicButtons(uint32_t buttons)
         convButtons |= VPAD_BUTTON_L;
 
     return convButtons;
-}
+} //end of copied functions
 
 static const char16_t * displayOptionToString(int32_t displayOption)
 {
@@ -283,11 +283,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
     int32_t recent[4] = {DISPLAY_OPTION_USE_DRC, DISPLAY_OPTION_TV, DISPLAY_OPTION_BOTH, DISPLAY_OPTION_DRC};
     //read recent order
-    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
-        if (WUPS_GetInt(nullptr, "recent0", &recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent1", &recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent2", &recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent3", &recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT) {
+        if (WUPSStorageAPI::Get("recent0", recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent1", recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent2", recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent3", recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
             
             //failed to read values from storage - use default values
             recent[0] = DISPLAY_OPTION_USE_DRC;
@@ -295,7 +295,6 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             recent[2] = DISPLAY_OPTION_BOTH;
             recent[3] = DISPLAY_OPTION_DRC;
         }
-        WUPS_CloseStorage();
     }
 
     //set the values for the error viewer that we will keep the same
@@ -425,7 +424,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     setDisplay(selectedDisplay);
 
     //check if we need to update recent order
-    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && selectedDisplay != recent[0]) {
         //update recent order
         if (selectedDisplay != recent[1]) {
             if (selectedDisplay != recent[2]) {
@@ -437,12 +436,12 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         recent[0] = selectedDisplay;
 
         //save new order to storage
-        WUPS_StoreInt(nullptr, "recent0", recent[0]);
-        WUPS_StoreInt(nullptr, "recent1", recent[1]);
-        WUPS_StoreInt(nullptr, "recent2", recent[2]);
-        WUPS_StoreInt(nullptr, "recent3", recent[3]);
+        WUPSStorageAPI::Store("recent0", recent[0]);
+        WUPSStorageAPI::Store("recent1", recent[1]);
+        WUPSStorageAPI::Store("recent2", recent[2]);
+        WUPSStorageAPI::Store("recent3", recent[3]);
 
-        WUPS_CloseStorage();
+        WUPSStorageAPI::SaveStorage();
     }
 
     return result;
