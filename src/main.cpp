@@ -10,6 +10,7 @@
 #include <coreinit/thread.h>
 #include <nn/cmpt/cmpt.h>
 #include <proc_ui/procui.h>
+#include <coreinit/title.h>
 
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");
@@ -181,8 +182,13 @@ static void setDisplay(int32_t displayOption)
 
 ON_APPLICATION_START()
 {
-    if (sLaunchingWiiGame) {
+    if (OSGetTitleID() == 0x0005001010040000 || // Wii U Menu JPN
+        OSGetTitleID() == 0x0005001010040100 || // Wii U Menu USA
+        OSGetTitleID() == 0x0005001010040200) { // Wii U Menu EUR
+        gInWiiUMenu = true;
         sLaunchingWiiGame = false;
+    } else {
+        gInWiiUMenu = false;
     }
 }
 
@@ -191,7 +197,7 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 {
     int32_t result = real_MCP_TitleList(handle, outTitleCount, titleList, size);
 
-    if (gUseCustomDialogs) {
+    if (gUseCustomDialogs && gInWiiUMenu) {
         uint32_t titleCount = *outTitleCount;
         for (uint32_t i = 0; i < titleCount; i++) {
             if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
@@ -204,13 +210,13 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 {
     int32_t result = real_ACPGetLaunchMetaXml(metaXml);
-    if (result != ACP_RESULT_SUCCESS) {
-        sLaunchingWiiGame = false;
+
+    if (sLaunchingWiiGame || !gUseCustomDialogs || !gInWiiUMenu) {
+        //sLaunchingWiiGame: the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
         return result;
     }
-
-    if (sLaunchingWiiGame || !gUseCustomDialogs) {
-        //the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
+    if (result != ACP_RESULT_SUCCESS) {
+        sLaunchingWiiGame = false;
         return result;
     }
     sLaunchingWiiGame = true;
@@ -462,7 +468,7 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
     return real_CMPTAcctSetDrcCtrlEnabled(enable);
 }
 
-//replace only for Wii U Menu
+//replace only for Wii U Menu process
 WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_TitleList, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);

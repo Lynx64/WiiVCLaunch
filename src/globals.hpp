@@ -28,3 +28,5 @@ extern int32_t gAutolaunchNoDRCSupport;
 extern int32_t gDisplayOptionsOrder;
 extern int32_t gSetResolution;
 extern bool gUseCustomDialogs;
+
+extern bool gInWiiUMenu;
