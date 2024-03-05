@@ -1,5 +1,6 @@
 #include "config.h"
 #include "globals.hpp"
+#include "logger.h"
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
@@ -112,6 +113,7 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         root.add(std::move(advancedOptions));
     } catch (const std::exception &e) {
+        DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
         return WUPSCONFIG_API_CALLBACK_RESULT_ERROR;
     }
     return WUPSCONFIG_API_CALLBACK_RESULT_SUCCESS;
