@@ -4,6 +4,7 @@
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
+#include <wups/config/WUPSConfigItemStub.h>
 #include <string_view>
 
 WUPS_USE_STORAGE("WiiVCLaunch");
@@ -99,6 +100,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                    gDisplayOptionsOrder,
                                                                    displayOptionsOrderValues,
                                                                    &multipleValueItemCallback));
+
+        // Help text
+        settings.add(WUPSConfigItemStub::Create("\uE06B Override Autolaunch by holding \uE000 when launching"));
 
         root.add(std::move(settings));
 
