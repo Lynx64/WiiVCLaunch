@@ -2,7 +2,7 @@
 Wii U plugin for launching Wii VC titles.
 
 ## Features
-- Select a display option with any controller
+- Select a display option (TV Only, TV and GamePad, etc.) with any controller
 - Autolaunch into a specific display option bypassing all dialogs
   - Keep A pressed when launching a game to force open the Select a display option dialogs
 - Set resolution to 480p (including 4:3) or 720p (also sets it for Wii Menu) (HDMI only)
