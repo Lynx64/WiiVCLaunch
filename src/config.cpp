@@ -104,6 +104,13 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                    displayOptionsOrderValues,
                                                                    &multipleValueItemCallback));
 
+        // Use custom dialogs
+        settings.add(WUPSConfigItemBoolean::Create(USE_CUSTOM_DIALOGS_CONFIG_ID,
+                                                   "Use custom dialogs (Wii U Menu needs to be restarted)",
+                                                   DEFAULT_USE_CUSTOM_DIALOGS_VALUE,
+                                                   gUseCustomDialogs,
+                                                   &boolItemCallback));
+
         // Help text
         settings.add(WUPSConfigItemStub::Create("\uE06B Override Autolaunch by holding \uE000 when launching"));
 
@@ -127,17 +134,6 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                           &multipleValueItemCallback));
 
         root.add(std::move(wiiMenuSettings));
-
-        // Category: Advanced options
-        auto advancedOptions = WUPSConfigCategory::Create("Advanced options");
-
-        advancedOptions.add(WUPSConfigItemBoolean::Create(USE_CUSTOM_DIALOGS_CONFIG_ID,
-                                                          "Use custom dialogs (Wii U Menu needs to be restarted)",
-                                                          DEFAULT_USE_CUSTOM_DIALOGS_VALUE,
-                                                          gUseCustomDialogs,
-                                                          &boolItemCallback));
-
-        root.add(std::move(advancedOptions));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
         return WUPSCONFIG_API_CALLBACK_RESULT_ERROR;
