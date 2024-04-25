@@ -11,6 +11,7 @@
 #include <nn/cmpt/cmpt.h>
 #include <proc_ui/procui.h>
 #include <coreinit/title.h>
+#include <avm/tv.h>
 
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");
@@ -26,12 +27,6 @@ INITIALIZE_PLUGIN()
 {
     initConfig();
 }
-
-extern "C" uint32_t TVEGetCurrentPort(void);
-
-extern "C" int32_t AVMSetTVScanResolution(uint32_t resolution);
-extern "C" void AVMGetHDMIState(uint32_t *outState);
-extern "C" BOOL AVMSetTVAspectRatio(uint32_t aspectRatio);
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
@@ -154,13 +149,13 @@ static const char16_t * displayOptionToString(int32_t displayOption)
 static void setResolution(int32_t resolution)
 {
     if (resolution != SET_RESOLUTION_NONE) {
-        uint32_t outPort = TVEGetCurrentPort();
-        if (outPort == 0) { //HDMI
+        TVEPort outPort = TVEGetCurrentPort();
+        if (outPort == TVE_PORT_HDMI) {
             if (resolution == SET_RESOLUTION_480P_43) {
-                AVMSetTVScanResolution(SET_RESOLUTION_480P);
-                AVMSetTVAspectRatio(0); //4:3
+                AVMSetTVScanResolution(AVM_TV_RESOLUTION_480P);
+                AVMSetTVAspectRatio(AVM_TV_ASPECT_RATIO_4_3);
             } else {
-                AVMSetTVScanResolution(resolution);
+                AVMSetTVScanResolution((AVMTvResolution) resolution);
             }
         }
     }
@@ -330,10 +325,10 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             uint32_t positionI = 0;
             uint32_t skippedOptionsCount = 0;
             bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
-            if (TVEGetCurrentPort() == 0) { //HDMI
-                uint32_t hdmiState = 1;
+            if (TVEGetCurrentPort() == TVE_PORT_HDMI) {
+                TVEHdmiState hdmiState = TVE_HDMI_STATE_HTPG_OFF;
                 AVMGetHDMIState(&hdmiState);
-                if (hdmiState != 10 && hdmiState != 8)
+                if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA)
                     tvConnected = false;
             }
             
