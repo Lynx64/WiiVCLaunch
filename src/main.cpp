@@ -151,16 +151,16 @@ static const char16_t * displayOptionToString(int32_t displayOption)
     }
 }
 
-static void setResolution()
+static void setResolution(int32_t resolution)
 {
-    if (gSetResolution != SET_RESOLUTION_NONE) {
+    if (resolution != SET_RESOLUTION_NONE) {
         uint32_t outPort = TVEGetCurrentPort();
         if (outPort == 0) { //HDMI
-            if (gSetResolution == SET_RESOLUTION_480P_43) {
+            if (resolution == SET_RESOLUTION_480P_43) {
                 AVMSetTVScanResolution(SET_RESOLUTION_480P);
                 AVMSetTVAspectRatio(0); //4:3
             } else {
-                AVMSetTVScanResolution(gSetResolution);
+                AVMSetTVScanResolution(resolution);
             }
         }
     }
@@ -453,13 +453,13 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
 DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t unk3)
 {
-    setResolution();
+    setResolution(gSetResolution);
     return real_CMPTExPrepareLaunch(unk1, unk2, unk3);
 }
 
 DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
 {
-    setResolution();
+    setResolution(gWiiMenuSetResolution);
     return real_CMPTLaunchMenu(dataBuffer, bufferSize);
 }
 

@@ -34,6 +34,9 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
         } else if (std::string_view(SET_RESOLUTION_CONFIG_ID) == item->identifier) {
             gSetResolution = newValue;
             WUPSStorageAPI::Store(item->identifier, gSetResolution);
+        } else if (std::string_view(WII_MENU_SET_RESOLUTION_CONFIG_ID) == item->identifier) {
+            gWiiMenuSetResolution = newValue;
+            WUPSStorageAPI::Store(item->identifier, gWiiMenuSetResolution);
         }
     }
 }
@@ -43,8 +46,8 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
     try {
         WUPSConfigCategory root = WUPSConfigCategory(rootHandle);
 
-        // Category: Settings
-        auto settings = WUPSConfigCategory::Create("Settings");
+        // Category: Wii VC settings
+        auto settings = WUPSConfigCategory::Create("Wii VC settings");
 
         // Autolaunch (GamePad supported)
         constexpr WUPSConfigItemMultipleValues::ValuePair autolaunchDRCSupportedValues[] = {
@@ -106,6 +109,25 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         root.add(std::move(settings));
 
+        // Category: Wii Menu settings
+        auto wiiMenuSettings = WUPSConfigCategory::Create("Wii Menu settings");
+
+        // Wii Menu set resolution
+        constexpr WUPSConfigItemMultipleValues::ValuePair wiiMenuSetResolutionValues[] = {
+                {SET_RESOLUTION_NONE,    "Same as Wii U"},
+                {SET_RESOLUTION_480P,    "480p"},
+                {SET_RESOLUTION_480P_43, "480p (4:3)"},
+                {SET_RESOLUTION_720P,    "720p"}};
+
+        wiiMenuSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(WII_MENU_SET_RESOLUTION_CONFIG_ID,
+                                                                          "Set resolution",
+                                                                          DEFAULT_WII_MENU_SET_RESOLUTION_VALUE,
+                                                                          gWiiMenuSetResolution,
+                                                                          wiiMenuSetResolutionValues,
+                                                                          &multipleValueItemCallback));
+
+        root.add(std::move(wiiMenuSettings));
+
         // Category: Advanced options
         auto advancedOptions = WUPSConfigCategory::Create("Advanced options");
 
@@ -134,13 +156,15 @@ void initConfig()
     WUPSConfigAPIOptionsV1 configOptions = {.name = "Wii VC Launch"};
     WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback);
 
-    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID, gAutolaunchDRCSupported, (int32_t) DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE);
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID, gAutolaunchDRCSupported, DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE);
 
-    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID, gAutolaunchNoDRCSupport, (int32_t) DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE);
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID, gAutolaunchNoDRCSupport, DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE);
 
-    WUPSStorageAPI::GetOrStoreDefault(DISPLAY_OPTIONS_ORDER_CONFIG_ID, gDisplayOptionsOrder, (int32_t) DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE);
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(DISPLAY_OPTIONS_ORDER_CONFIG_ID, gDisplayOptionsOrder, DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE);
 
-    WUPSStorageAPI::GetOrStoreDefault(SET_RESOLUTION_CONFIG_ID, gSetResolution, (int32_t) DEFAULT_SET_RESOLUTION_VALUE);
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(SET_RESOLUTION_CONFIG_ID, gSetResolution, DEFAULT_SET_RESOLUTION_VALUE);
 
     WUPSStorageAPI::GetOrStoreDefault(USE_CUSTOM_DIALOGS_CONFIG_ID, gUseCustomDialogs, DEFAULT_USE_CUSTOM_DIALOGS_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution, DEFAULT_WII_MENU_SET_RESOLUTION_VALUE);
 }
