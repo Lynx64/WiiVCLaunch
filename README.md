@@ -1,5 +1,5 @@
 # Wii VC Launch
-Wii U plugin for launching Wii VC titles.
+Wii U plugin to enhance launching Wii VC titles.
 
 ## Features
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
@@ -10,10 +10,6 @@ Wii U plugin for launching Wii VC titles.
 
 Note that it falls back to the GamePad screen if TV not connected.
 
-If custom dialogs are disabled:
-- Autolaunch cannot be used
-- Set resolution can still be used
-
 ## Installation
 Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases)<br/>
 Copy the `.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`<br/>
@@ -21,6 +17,10 @@ where [ENVIRONMENT] is the actual environment name (most likely 'aroma')
 
 ## Usage
 Open the plugin config menu by pressing L, DPAD Down and Minus on the GamePad, Pro Controller or Classic Controller, or B, DPAD Down and Minus on a Wii Remote.
+
+If custom dialogs are disabled:
+- Autolaunch cannot be used
+- Set resolution can still be used
 
 ## Building
 For building you need:

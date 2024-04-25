@@ -1,222 +1,146 @@
 #include "config.h"
 #include "globals.hpp"
+#include "logger.h"
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
+#include <wups/config/WUPSConfigItemStub.h>
 #include <string_view>
 
 WUPS_USE_STORAGE("WiiVCLaunch");
 
-void initConfig()
-{
-    // Open storage to read values
-    if (WUPS_OpenStorage() != WUPS_STORAGE_ERROR_SUCCESS) {
-        //failed to open storage - use default values
-    } else {
-        // Try to get value from storage
-        if (WUPS_GetInt(nullptr, "gAutolaunchDRCSupported", reinterpret_cast<int32_t *>(&gAutolaunchDRCSupported)) != WUPS_STORAGE_ERROR_SUCCESS) {
-            // Add the value to the storage if it's missing
-            gAutolaunchDRCSupported = DISPLAY_OPTION_CHOOSE;
-            WUPS_StoreInt(nullptr, "gAutolaunchDRCSupported", (int32_t) gAutolaunchDRCSupported);
-        }
-
-        if (WUPS_GetInt(nullptr, "gAutolaunchNoDRCSupport", reinterpret_cast<int32_t *>(&gAutolaunchNoDRCSupport)) != WUPS_STORAGE_ERROR_SUCCESS) {
-            gAutolaunchNoDRCSupport = DISPLAY_OPTION_CHOOSE;
-            WUPS_StoreInt(nullptr, "gAutolaunchNoDRCSupport", (int32_t) gAutolaunchNoDRCSupport);
-        }
-
-        if (WUPS_GetInt(nullptr, "gDisplayOptionsOrder", reinterpret_cast<int32_t *>(&gDisplayOptionsOrder)) != WUPS_STORAGE_ERROR_SUCCESS) {
-            gDisplayOptionsOrder = DISPLAY_OPTIONS_ORDER_RECENT;
-            WUPS_StoreInt(nullptr, "gDisplayOptionsOrder", (int32_t) gDisplayOptionsOrder);
-        }
-
-        if (WUPS_GetInt(nullptr, "gSetResolution", reinterpret_cast<int32_t *>(&gSetResolution)) != WUPS_STORAGE_ERROR_SUCCESS) {
-            gSetResolution = SET_RESOLUTION_NONE;
-            WUPS_StoreInt(nullptr, "gSetResolution", (int32_t) gSetResolution);
-        }
-
-        if (WUPS_GetBool(nullptr, "gUseCustomDialogs", &gUseCustomDialogs) != WUPS_STORAGE_ERROR_SUCCESS) {
-            gUseCustomDialogs = true;
-            WUPS_StoreBool(nullptr, "gUseCustomDialogs", gUseCustomDialogs);
-        }
-
-        // Close storage
-        WUPS_CloseStorage();
-    }
-}
-
 void boolItemCallback(ConfigItemBoolean *item, bool newValue)
 {
-    if (item && item->configId) {
-        if (std::string_view(item->configId) == "gUseCustomDialogs") {
+    if (item && item->identifier) {
+        if (std::string_view(USE_CUSTOM_DIALOGS_CONFIG_ID) == item->identifier) {
             gUseCustomDialogs = newValue;
-            WUPS_StoreBool(nullptr, item->configId, gUseCustomDialogs);
+            WUPSStorageAPI::Store(item->identifier, gUseCustomDialogs);
         }
     }
 }
 
 void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue)
 {
-    if (item && item->configId) {
-        if (std::string_view(item->configId) == "gAutolaunchDRCSupported") {
+    if (item && item->identifier) {
+        if (std::string_view(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID) == item->identifier) {
             gAutolaunchDRCSupported = newValue;
-            WUPS_StoreInt(nullptr, item->configId, (int32_t) gAutolaunchDRCSupported);
-        } else if (std::string_view(item->configId) == "gAutolaunchNoDRCSupport") {
+            WUPSStorageAPI::Store(item->identifier, gAutolaunchDRCSupported);
+        } else if (std::string_view(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID) == item->identifier) {
             gAutolaunchNoDRCSupport = newValue;
-            WUPS_StoreInt(nullptr, item->configId, (int32_t) gAutolaunchNoDRCSupport);
-        } else if (std::string_view(item->configId) == "gDisplayOptionsOrder") {
+            WUPSStorageAPI::Store(item->identifier, gAutolaunchNoDRCSupport);
+        } else if (std::string_view(DISPLAY_OPTIONS_ORDER_CONFIG_ID) == item->identifier) {
             gDisplayOptionsOrder = newValue;
-            WUPS_StoreInt(nullptr, item->configId, (int32_t) gDisplayOptionsOrder);
-        } else if (std::string_view(item->configId) == "gSetResolution") {
+            WUPSStorageAPI::Store(item->identifier, gDisplayOptionsOrder);
+        } else if (std::string_view(SET_RESOLUTION_CONFIG_ID) == item->identifier) {
             gSetResolution = newValue;
-            WUPS_StoreInt(nullptr, item->configId, (int32_t) gSetResolution);
+            WUPSStorageAPI::Store(item->identifier, gSetResolution);
         }
     }
 }
 
-WUPS_GET_CONFIG()
+WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle rootHandle)
 {
-    WUPSConfigHandle config;
-    WUPSConfig_CreateHandled(&config, "\ue067 VC Launch");
+    try {
+        WUPSConfigCategory root = WUPSConfigCategory(rootHandle);
 
-    // Open the storage
-    WUPSStorageError storageRes = WUPS_OpenStorage();
-    if (storageRes != WUPS_STORAGE_ERROR_SUCCESS) {
-        //failed to open storage
-        if (storageRes == WUPS_STORAGE_ERROR_ALREADY_OPENED) {
-            WUPSConfigCategoryHandle errorInfo1;
-            WUPSConfig_AddCategoryByNameHandled(config, "Cannot edit config right now", &errorInfo1);
-            return config;
-        }
+        // Category: Settings
+        auto settings = WUPSConfigCategory::Create("Settings");
 
-        WUPSConfigCategoryHandle errorInfo1;
-        WUPSConfig_AddCategoryByNameHandled(config, "Error opening storage", &errorInfo1);
+        // Autolaunch (GamePad supported)
+        constexpr WUPSConfigItemMultipleValues::ValuePair autolaunchDRCSupportedValues[] = {
+                {DISPLAY_OPTION_CHOOSE,  "Select each time"},
+                {DISPLAY_OPTION_USE_DRC, "Use \ue087 as controller"},
+                {DISPLAY_OPTION_TV,      "TV Only"},
+                {DISPLAY_OPTION_BOTH,    "TV and \ue087"},
+                {DISPLAY_OPTION_DRC,     "\ue087 screen only"}};
 
-        WUPSConfigCategoryHandle errorInfo2;
-        WUPSConfig_AddCategoryByNameHandled(config, "Try deleting location_of_this_plugin/config/WiiVCLaunch.json", &errorInfo2);
-        return config;
+        settings.add(WUPSConfigItemMultipleValues::CreateFromValue(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID,
+                                                                   "Autolaunch (\ue087 supported)",
+                                                                   DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE,
+                                                                   gAutolaunchDRCSupported,
+                                                                   autolaunchDRCSupportedValues,
+                                                                   &multipleValueItemCallback));
+
+        // Autolaunch (GamePad not supported)
+        constexpr WUPSConfigItemMultipleValues::ValuePair autolaunchNoDRCSupportValues[] = {
+                {DISPLAY_OPTION_CHOOSE, "Select each time"},
+                {DISPLAY_OPTION_TV,     "TV Only"},
+                {DISPLAY_OPTION_BOTH,   "TV and \ue087"},
+                {DISPLAY_OPTION_DRC,    "\ue087 screen only"}};
+
+        settings.add(WUPSConfigItemMultipleValues::CreateFromValue(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID,
+                                                                   "Autolaunch (\ue087 not supported)",
+                                                                   DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE,
+                                                                   gAutolaunchNoDRCSupport,
+                                                                   autolaunchNoDRCSupportValues,
+                                                                   &multipleValueItemCallback));
+
+        // Set resolution
+        constexpr WUPSConfigItemMultipleValues::ValuePair setResolutionValues[] = {
+                {SET_RESOLUTION_NONE,    "Same as Wii U"},
+                {SET_RESOLUTION_480P,    "480p"},
+                {SET_RESOLUTION_480P_43, "480p (4:3)"},
+                {SET_RESOLUTION_720P,    "720p"}};
+
+        settings.add(WUPSConfigItemMultipleValues::CreateFromValue(SET_RESOLUTION_CONFIG_ID,
+                                                                   "Set resolution",
+                                                                   DEFAULT_SET_RESOLUTION_VALUE,
+                                                                   gSetResolution,
+                                                                   setResolutionValues,
+                                                                   &multipleValueItemCallback));
+
+        // Display options order
+        constexpr WUPSConfigItemMultipleValues::ValuePair displayOptionsOrderValues[] = {
+                {DISPLAY_OPTIONS_ORDER_DEFAULT, "Default"},
+                {DISPLAY_OPTIONS_ORDER_RECENT,  "Recent"}};
+
+        settings.add(WUPSConfigItemMultipleValues::CreateFromValue(DISPLAY_OPTIONS_ORDER_CONFIG_ID,
+                                                                   "Display options order",
+                                                                   DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE,
+                                                                   gDisplayOptionsOrder,
+                                                                   displayOptionsOrderValues,
+                                                                   &multipleValueItemCallback));
+
+        // Help text
+        settings.add(WUPSConfigItemStub::Create("\uE06B Override Autolaunch by holding \uE000 when launching"));
+
+        root.add(std::move(settings));
+
+        // Category: Advanced options
+        auto advancedOptions = WUPSConfigCategory::Create("Advanced options");
+
+        advancedOptions.add(WUPSConfigItemBoolean::Create(USE_CUSTOM_DIALOGS_CONFIG_ID,
+                                                          "Use custom dialogs (Wii U Menu needs to be restarted)",
+                                                          DEFAULT_USE_CUSTOM_DIALOGS_VALUE,
+                                                          gUseCustomDialogs,
+                                                          &boolItemCallback));
+
+        root.add(std::move(advancedOptions));
+    } catch (const std::exception &e) {
+        DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
+        return WUPSCONFIG_API_CALLBACK_RESULT_ERROR;
     }
-
-    // Category: Settings
-    WUPSConfigCategoryHandle settings;
-    WUPSConfig_AddCategoryByNameHandled(config, "Settings", &settings);
-
-    // Autolaunch (GamePad supported)
-    ConfigItemMultipleValuesPair autolaunchDRCSupportedValues[5];
-    autolaunchDRCSupportedValues[0].value       = DISPLAY_OPTION_CHOOSE;
-    autolaunchDRCSupportedValues[0].valueName   = (char *) "Select each time";
-
-    autolaunchDRCSupportedValues[1].value       = DISPLAY_OPTION_USE_DRC;
-    autolaunchDRCSupportedValues[1].valueName   = (char *) "Use \ue087 as controller";
-
-    autolaunchDRCSupportedValues[2].value       = DISPLAY_OPTION_TV;
-    autolaunchDRCSupportedValues[2].valueName   = (char *) "TV Only";
-
-    autolaunchDRCSupportedValues[3].value       = DISPLAY_OPTION_BOTH;
-    autolaunchDRCSupportedValues[3].valueName   = (char *) "TV and \ue087";
-
-    autolaunchDRCSupportedValues[4].value       = DISPLAY_OPTION_DRC;
-    autolaunchDRCSupportedValues[4].valueName   = (char *) "\ue087 screen only";
-
-    int32_t defaultIndex = 0;
-    int32_t curIndex = 0;
-    for (auto &cur : autolaunchDRCSupportedValues) {
-        if (cur.value == gAutolaunchDRCSupported) {
-            defaultIndex = curIndex;
-            break;
-        }
-        curIndex++;
-    }
-
-    WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gAutolaunchDRCSupported", "Autolaunch (\ue087 supported)", defaultIndex, autolaunchDRCSupportedValues,
-                                                     5, &multipleValueItemCallback);
-
-    // Autolaunch (GamePad not supported)
-    ConfigItemMultipleValuesPair autolaunchNoDRCSupportValues[4];
-    autolaunchNoDRCSupportValues[0].value       = DISPLAY_OPTION_CHOOSE;
-    autolaunchNoDRCSupportValues[0].valueName   = (char *) "Select each time";
-
-    autolaunchNoDRCSupportValues[1].value       = DISPLAY_OPTION_TV;
-    autolaunchNoDRCSupportValues[1].valueName   = (char *) "TV Only";
-
-    autolaunchNoDRCSupportValues[2].value       = DISPLAY_OPTION_BOTH;
-    autolaunchNoDRCSupportValues[2].valueName   = (char *) "TV and \ue087";
-
-    autolaunchNoDRCSupportValues[3].value       = DISPLAY_OPTION_DRC;
-    autolaunchNoDRCSupportValues[3].valueName   = (char *) "\ue087 screen only";
-
-    defaultIndex = 0;
-    curIndex = 0;
-    for (auto &cur : autolaunchNoDRCSupportValues) {
-        if (cur.value == gAutolaunchNoDRCSupport) {
-            defaultIndex = curIndex;
-            break;
-        }
-        curIndex++;
-    }
-
-    WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gAutolaunchNoDRCSupport", "Autolaunch (\ue087 not supported)", defaultIndex, autolaunchNoDRCSupportValues,
-                                                     4, &multipleValueItemCallback);
-
-    // Set resolution
-    ConfigItemMultipleValuesPair setResolutionValues[4];
-    setResolutionValues[0].value       = SET_RESOLUTION_NONE;
-    setResolutionValues[0].valueName   = (char *) "Same as Wii U";
-
-    setResolutionValues[1].value       = SET_RESOLUTION_480P;
-    setResolutionValues[1].valueName   = (char *) "480p";
-
-    setResolutionValues[2].value       = SET_RESOLUTION_480P_43;
-    setResolutionValues[2].valueName   = (char *) "480p (4:3)";
-
-    setResolutionValues[3].value       = SET_RESOLUTION_720P;
-    setResolutionValues[3].valueName   = (char *) "720p";
-
-    defaultIndex = 0;
-    curIndex = 0;
-    for (auto &cur : setResolutionValues) {
-        if (cur.value == gSetResolution) {
-            defaultIndex = curIndex;
-            break;
-        }
-        curIndex++;
-    }
-
-    WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gSetResolution", "Set resolution", defaultIndex, setResolutionValues,
-                                                     4, &multipleValueItemCallback);
-
-    // Display options order
-    ConfigItemMultipleValuesPair displayOptionsOrderValues[2];
-    displayOptionsOrderValues[0].value       = DISPLAY_OPTIONS_ORDER_DEFAULT;
-    displayOptionsOrderValues[0].valueName   = (char *) "Default";
-
-    displayOptionsOrderValues[1].value       = DISPLAY_OPTIONS_ORDER_RECENT;
-    displayOptionsOrderValues[1].valueName   = (char *) "Recent";
-
-    defaultIndex = 0;
-    curIndex = 0;
-    for (auto &cur : displayOptionsOrderValues) {
-        if (cur.value == gDisplayOptionsOrder) {
-            defaultIndex = curIndex;
-            break;
-        }
-        curIndex++;
-    }
-
-    WUPSConfigItemMultipleValues_AddToCategoryHandled(config, settings, "gDisplayOptionsOrder", "Display options order", defaultIndex, displayOptionsOrderValues,
-                                                     2, &multipleValueItemCallback);
-
-    // Category: Advanced options
-    WUPSConfigCategoryHandle advancedOptions;
-    WUPSConfig_AddCategoryByNameHandled(config, "Advanced options", &advancedOptions);
-
-    WUPSConfigItemBoolean_AddToCategoryHandled(config, advancedOptions, "gUseCustomDialogs", "Use custom dialogs", gUseCustomDialogs, &boolItemCallback);
-
-    return config;
+    return WUPSCONFIG_API_CALLBACK_RESULT_SUCCESS;
 }
 
-WUPS_CONFIG_CLOSED()
+void ConfigMenuClosedCallback()
 {
     // Save all changes
-    WUPS_CloseStorage();
+    WUPSStorageAPI::SaveStorage();
+}
+
+void initConfig()
+{
+    WUPSConfigAPIOptionsV1 configOptions = {.name = "Wii VC Launch"};
+    WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback);
+
+    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID, gAutolaunchDRCSupported, (int32_t) DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID, gAutolaunchNoDRCSupport, (int32_t) DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(DISPLAY_OPTIONS_ORDER_CONFIG_ID, gDisplayOptionsOrder, (int32_t) DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(SET_RESOLUTION_CONFIG_ID, gSetResolution, (int32_t) DEFAULT_SET_RESOLUTION_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(USE_CUSTOM_DIALOGS_CONFIG_ID, gUseCustomDialogs, DEFAULT_USE_CUSTOM_DIALOGS_VALUE);
 }

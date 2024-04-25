@@ -10,6 +10,7 @@
 #include <coreinit/thread.h>
 #include <nn/cmpt/cmpt.h>
 #include <proc_ui/procui.h>
+#include <coreinit/title.h>
 
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");
@@ -20,17 +21,17 @@ WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
 
-// Called when exiting the plugin loader
+// Gets called ONCE when the plugin was loaded
 INITIALIZE_PLUGIN()
 {
     initConfig();
 }
 
-extern "C" int32_t AVMGetCurrentPort(int32_t *outPort);
-extern "C" int32_t AVMSetTVScanResolution(int32_t res);
-extern "C" void AVMWaitTVEComp(void);
-extern "C" void AVMGetHDMIState(int32_t *state);
-extern "C" int32_t AVMSetTVAspectRatio(int32_t aspect);
+extern "C" uint32_t TVEGetCurrentPort(void);
+
+extern "C" int32_t AVMSetTVScanResolution(uint32_t resolution);
+extern "C" void AVMGetHDMIState(uint32_t *outState);
+extern "C" BOOL AVMSetTVAspectRatio(uint32_t aspectRatio);
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
@@ -131,7 +132,7 @@ static uint32_t remapClassicButtons(uint32_t buttons)
         convButtons |= VPAD_BUTTON_L;
 
     return convButtons;
-}
+} //end of copied functions
 
 static const char16_t * displayOptionToString(int32_t displayOption)
 {
@@ -153,8 +154,7 @@ static const char16_t * displayOptionToString(int32_t displayOption)
 static void setResolution()
 {
     if (gSetResolution != SET_RESOLUTION_NONE) {
-        int32_t outPort = 0;
-        AVMGetCurrentPort(&outPort);
+        uint32_t outPort = TVEGetCurrentPort();
         if (outPort == 0) { //HDMI
             if (gSetResolution == SET_RESOLUTION_480P_43) {
                 AVMSetTVScanResolution(SET_RESOLUTION_480P);
@@ -182,8 +182,13 @@ static void setDisplay(int32_t displayOption)
 
 ON_APPLICATION_START()
 {
-    if (sLaunchingWiiGame) {
+    if (OSGetTitleID() == 0x0005001010040000 || // Wii U Menu JPN
+        OSGetTitleID() == 0x0005001010040100 || // Wii U Menu USA
+        OSGetTitleID() == 0x0005001010040200) { // Wii U Menu EUR
+        gInWiiUMenu = true;
         sLaunchingWiiGame = false;
+    } else {
+        gInWiiUMenu = false;
     }
 }
 
@@ -192,7 +197,8 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 {
     int32_t result = real_MCP_TitleList(handle, outTitleCount, titleList, size);
 
-    if (gUseCustomDialogs) {
+    if (gUseCustomDialogs && gInWiiUMenu) {
+        DEBUG_FUNCTION_LINE_INFO("Patching MCP_TitleList in Wii U Menu");
         uint32_t titleCount = *outTitleCount;
         for (uint32_t i = 0; i < titleCount; i++) {
             if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
@@ -205,13 +211,13 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
 DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 {
     int32_t result = real_ACPGetLaunchMetaXml(metaXml);
-    if (result != ACP_RESULT_SUCCESS) {
-        sLaunchingWiiGame = false;
+
+    if (sLaunchingWiiGame || !gUseCustomDialogs || !gInWiiUMenu) {
+        //sLaunchingWiiGame: the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
         return result;
     }
-
-    if (sLaunchingWiiGame || !gUseCustomDialogs) {
-        //the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
+    if (result != ACP_RESULT_SUCCESS) {
+        sLaunchingWiiGame = false;
         return result;
     }
     sLaunchingWiiGame = true;
@@ -283,11 +289,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
     int32_t recent[4] = {DISPLAY_OPTION_USE_DRC, DISPLAY_OPTION_TV, DISPLAY_OPTION_BOTH, DISPLAY_OPTION_DRC};
     //read recent order
-    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
-        if (WUPS_GetInt(nullptr, "recent0", &recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent1", &recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent2", &recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
-            WUPS_GetInt(nullptr, "recent3", &recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT) {
+        if (WUPSStorageAPI::Get("recent0", recent[0]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent1", recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent2", recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
+            WUPSStorageAPI::Get("recent3", recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
             
             //failed to read values from storage - use default values
             recent[0] = DISPLAY_OPTION_USE_DRC;
@@ -295,7 +301,6 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             recent[2] = DISPLAY_OPTION_BOTH;
             recent[3] = DISPLAY_OPTION_DRC;
         }
-        WUPS_CloseStorage();
     }
 
     //set the values for the error viewer that we will keep the same
@@ -325,10 +330,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             uint32_t positionI = 0;
             uint32_t skippedOptionsCount = 0;
             bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
-            int32_t outPort = 1; //default to non-hdmi incase getting current port fails
-            AVMGetCurrentPort(&outPort);
-            if (outPort == 0) { //HDMI
-                int32_t hdmiState = 1;
+            if (TVEGetCurrentPort() == 0) { //HDMI
+                uint32_t hdmiState = 1;
                 AVMGetHDMIState(&hdmiState);
                 if (hdmiState != 10 && hdmiState != 8)
                     tvConnected = false;
@@ -425,7 +428,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     setDisplay(selectedDisplay);
 
     //check if we need to update recent order
-    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && selectedDisplay != recent[0] && WUPS_OpenStorage() == WUPS_STORAGE_ERROR_SUCCESS) {
+    if (gDisplayOptionsOrder == DISPLAY_OPTIONS_ORDER_RECENT && selectedDisplay != recent[0]) {
         //update recent order
         if (selectedDisplay != recent[1]) {
             if (selectedDisplay != recent[2]) {
@@ -437,12 +440,12 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         recent[0] = selectedDisplay;
 
         //save new order to storage
-        WUPS_StoreInt(nullptr, "recent0", recent[0]);
-        WUPS_StoreInt(nullptr, "recent1", recent[1]);
-        WUPS_StoreInt(nullptr, "recent2", recent[2]);
-        WUPS_StoreInt(nullptr, "recent3", recent[3]);
+        WUPSStorageAPI::Store("recent0", recent[0]);
+        WUPSStorageAPI::Store("recent1", recent[1]);
+        WUPSStorageAPI::Store("recent2", recent[2]);
+        WUPSStorageAPI::Store("recent3", recent[3]);
 
-        WUPS_CloseStorage();
+        WUPSStorageAPI::SaveStorage();
     }
 
     return result;
@@ -466,7 +469,7 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
     return real_CMPTAcctSetDrcCtrlEnabled(enable);
 }
 
-//replace only for Wii U Menu
+//replace only for Wii U Menu process
 WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_TitleList, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
