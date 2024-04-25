@@ -166,5 +166,9 @@ void initConfig()
 
     WUPSStorageAPI::GetOrStoreDefault(USE_CUSTOM_DIALOGS_CONFIG_ID, gUseCustomDialogs, DEFAULT_USE_CUSTOM_DIALOGS_VALUE);
 
-    WUPSStorageAPI::GetOrStoreDefault<int32_t>(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution, DEFAULT_WII_MENU_SET_RESOLUTION_VALUE);
+    if (WUPSStorageAPI::Get(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution) == WUPS_STORAGE_ERROR_NOT_FOUND) {
+        gWiiMenuSetResolution = gSetResolution;
+        WUPSStorageAPI::Store(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution);
+        WUPSStorageAPI::SaveStorage();
+    }
 }
