@@ -193,10 +193,14 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
     int32_t result = real_MCP_TitleList(handle, outTitleCount, titleList, size);
 
     if (gUseCustomDialogs && gInWiiUMenu) {
-        DEBUG_FUNCTION_LINE_INFO("Patching MCP_TitleList in Wii U Menu");
-        uint32_t titleCount = *outTitleCount;
-        for (uint32_t i = 0; i < titleCount; i++) {
-            if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
+        if (result == 0 && outTitleCount) {
+            DEBUG_FUNCTION_LINE_INFO("Patching MCP_TitleList in Wii U Menu");
+            uint32_t titleCount = *outTitleCount;
+            for (uint32_t i = 0; i < titleCount; i++) {
+                if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
+            }
+        } else {
+            DEBUG_FUNCTION_LINE_WARN("Either real_MCP_TitleList didn't return 0 (returned %d) or outTitleCount == nullptr", result);
         }
     }
 
