@@ -18,10 +18,16 @@ enum DisplayOptionsOrder {
 
 enum SetResolution {
     SET_RESOLUTION_NONE    = 0,
+    SET_RESOLUTION_576I    = 1,
+    SET_RESOLUTION_480I    = 2,
     SET_RESOLUTION_480P    = 3,
     SET_RESOLUTION_720P    = 4,
+    SET_RESOLUTION_576I_43 = 101,
+    SET_RESOLUTION_480I_43 = 102,
     SET_RESOLUTION_480P_43 = 103,
 };
+
+#define SET_RESOLUTION_4_3_MODIFIER 100
 
 extern int32_t gAutolaunchDRCSupported;
 extern int32_t gAutolaunchNoDRCSupport;

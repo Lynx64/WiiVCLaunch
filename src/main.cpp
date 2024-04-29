@@ -148,17 +148,20 @@ static const char16_t * displayOptionToString(int32_t displayOption)
 
 static void setResolution(int32_t resolution)
 {
-    if (resolution != SET_RESOLUTION_NONE) {
-        TVEPort outPort = TVEGetCurrentPort();
-        if (outPort == TVE_PORT_HDMI) {
-            if (resolution == SET_RESOLUTION_480P_43) {
-                AVMSetTVScanResolution(AVM_TV_RESOLUTION_480P);
-                AVMSetTVAspectRatio(AVM_TV_ASPECT_RATIO_4_3);
-            } else {
-                AVMSetTVScanResolution((AVMTvResolution) resolution);
-            }
+    if (resolution == SET_RESOLUTION_NONE) return;
+
+    if (resolution == SET_RESOLUTION_576I || resolution == SET_RESOLUTION_576I_43) {
+        AVMSetTVVideoRegion(AVM_TV_VIDEO_REGION_PAL, TVEGetCurrentPort(), AVM_TV_RESOLUTION_576I);
+    } else {
+        if (resolution > SET_RESOLUTION_4_3_MODIFIER) {
+            AVMSetTVScanResolution((AVMTvResolution) (resolution - SET_RESOLUTION_4_3_MODIFIER));
+        } else {
+            AVMSetTVScanResolution((AVMTvResolution) resolution);
         }
     }
+
+    if (resolution > SET_RESOLUTION_4_3_MODIFIER)
+        AVMSetTVAspectRatio(AVM_TV_ASPECT_RATIO_4_3);
 }
 
 static void setDisplay(int32_t displayOption)
