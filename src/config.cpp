@@ -115,6 +115,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                    gUseCustomDialogs,
                                                    &boolItemCallback));
 
+        // Separator
+        settings.add(WUPSConfigItemStub::Create(" "));
+
         // Help text
         settings.add(WUPSConfigItemStub::Create("\uE06B Override Autolaunch by holding \uE000 when launching"));
 
