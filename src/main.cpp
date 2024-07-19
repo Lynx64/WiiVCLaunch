@@ -3,6 +3,7 @@
 #include "globals.hpp"
 #include "logger.h"
 #include <wups.h>
+#include <notifications/notifications.h>
 #include <coreinit/mcp.h>
 #include <nn/acp/title.h>
 #include <coreinit/dynload.h>
@@ -22,10 +23,39 @@ WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
 
+static void initNotifications()
+{
+    NotificationModuleStatus notifStatus = NotificationModule_InitLibrary();
+    if (notifStatus != NOTIFICATION_MODULE_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("NotificationModule_InitLibrary returned %s (%d)",
+                                NotificationModule_GetStatusStr(notifStatus),
+                                notifStatus);
+        return;
+    }
+
+    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
+                                       NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
+                                       3.0f);
+    NMColor notifBackgroundColour = {250, 250, 250, 255};
+    NMColor notifTextColour = {0, 0, 0, 255};
+    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
+                                       NOTIFICATION_MODULE_DEFAULT_OPTION_BACKGROUND_COLOR,
+                                       notifBackgroundColour);
+    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
+                                       NOTIFICATION_MODULE_DEFAULT_OPTION_TEXT_COLOR,
+                                       notifTextColour);
+}
+
 // Gets called ONCE when the plugin was loaded
 INITIALIZE_PLUGIN()
 {
     initConfig();
+    initNotifications();
+}
+
+DEINITIALIZE_PLUGIN()
+{
+    NotificationModule_DeInitLibrary();
 }
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
