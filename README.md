@@ -27,5 +27,6 @@ If custom dialogs are disabled:
 For building you need:
 - [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [wut](https://github.com/devkitPro/wut)
+- [libnotifications](https://github.com/wiiu-env/libnotifications)
 
 then run `make`
