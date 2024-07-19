@@ -498,7 +498,13 @@ DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
 
 DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
 {
-    VPADSetSensorBar(VPAD_CHAN_0, true);
+    if (enable == 0 && !sLaunchingWiiGame) {
+        int8_t sensorBarEnabled = 0;
+        VPADBASEGetSensorBarSetting(VPAD_CHAN_0, &sensorBarEnabled);
+        if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
+            NotificationModule_AddInfoNotification("GamePad sensor bar enabled");
+        }
+    }
     return real_CMPTAcctSetDrcCtrlEnabled(enable);
 }
 
