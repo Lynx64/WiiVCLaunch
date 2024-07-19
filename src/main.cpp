@@ -71,6 +71,7 @@ static bool (*dyn_ErrEulaIsDecideSelectLeftButtonError)()                       
 static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                          = nullptr;
 
 static bool sLaunchingWiiGame = false;
+static bool sInputRedirectionActive = false;
 
 //remap buttons functions copied from https://github.com/wiiu-env/WiiUPluginLoaderBackend/blob/cb527add76c95bff3fb1ddef7a016fec3db4c497/source/utils/ConfigUtils.cpp#LL35C7-L35C7
 static uint32_t remapWiiMoteButtons(uint32_t buttons)
@@ -504,8 +505,23 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
         if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
             NotificationModule_AddInfoNotification("GamePad sensor bar enabled");
         }
+        sInputRedirectionActive = true;
     }
     return real_CMPTAcctSetDrcCtrlEnabled(enable);
+}
+
+DECL_FUNCTION(int32_t, WPADProbe, WPADChan chan, WPADExtensionType *outExtensionType)
+{
+    int32_t result = real_WPADProbe(chan, outExtensionType);
+    if (sInputRedirectionActive && result == 0 && outExtensionType && *outExtensionType == WPAD_EXT_PRO_CONTROLLER) {
+        *outExtensionType = WPAD_EXT_CLASSIC;
+    }
+    return result;
+}
+
+ON_APPLICATION_REQUESTS_EXIT()
+{
+    sInputRedirectionActive = false;
 }
 
 //replace only for Wii U Menu process
@@ -513,5 +529,6 @@ WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_T
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTAcctSetDrcCtrlEnabled, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTAcctSetDrcCtrlEnabled, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
+WUPS_MUST_REPLACE_FOR_PROCESS(WPADProbe, WUPS_LOADER_LIBRARY_PADSCORE, WPADProbe, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExPrepareLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExPrepareLaunch, WUPS_FP_TARGET_PROCESS_GAME);
