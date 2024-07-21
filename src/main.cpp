@@ -2,17 +2,17 @@
 #include "config.h"
 #include "globals.hpp"
 #include "logger.h"
-#include <wups.h>
-#include <notifications/notifications.h>
-#include <coreinit/mcp.h>
-#include <nn/acp/title.h>
-#include <coreinit/dynload.h>
-#include <nn/erreula.h>
-#include <coreinit/thread.h>
-#include <nn/cmpt/cmpt.h>
-#include <proc_ui/procui.h>
-#include <coreinit/title.h>
 #include <avm/tv.h>
+#include <coreinit/dynload.h>
+#include <coreinit/mcp.h>
+#include <coreinit/thread.h>
+#include <coreinit/title.h>
+#include <nn/acp/title.h>
+#include <nn/cmpt/cmpt.h>
+#include <nn/erreula.h>
+#include <notifications/notifications.h>
+#include <proc_ui/procui.h>
+#include <wups.h>
 
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");

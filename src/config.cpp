@@ -1,11 +1,11 @@
 #include "config.h"
 #include "globals.hpp"
 #include "logger.h"
+#include <string_view>
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <wups/config/WUPSConfigItemStub.h>
-#include <string_view>
 
 WUPS_USE_STORAGE("WiiVCLaunch");
 

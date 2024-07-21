@@ -16,8 +16,8 @@ extern "C" {
 
 #define LOG(LOG_FUNC, FMT, ARGS...) LOG_EX(LOG_FUNC, "", "", FMT, ##ARGS)
 
-#define LOG_EX(LOG_FUNC, LOG_LEVEL, LINE_END, FMT, ARGS...)                                                                                              \
-    do {                                                                                                                                                 \
+#define LOG_EX(LOG_FUNC, LOG_LEVEL, LINE_END, FMT, ARGS...)                                                                                            \
+    do {                                                                                                                                               \
         LOG_FUNC("[(%s)%s][%23s]%30s@L%04d: " LOG_LEVEL "" FMT "" LINE_END, LOG_APP_TYPE, LOG_APP_NAME, __FILENAME__, __FUNCTION__, __LINE__, ##ARGS); \
     } while (0)
 
