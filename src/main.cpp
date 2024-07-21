@@ -138,21 +138,46 @@ static uint32_t remapClassicButtons(uint32_t buttons)
     return convButtons;
 } //end of copied functions
 
-static const char16_t * displayOptionToString(int32_t displayOption)
+static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
+{
+    // the GamePad icon doesn't look good on the notification's small font size
+    switch (displayOption)
+    {
+    case DISPLAY_OPTION_USE_DRC:
+        return "Use GamePad as controller";
+    case DISPLAY_OPTION_TV:
+        return "TV Only";
+    case DISPLAY_OPTION_BOTH:
+        return "TV and GamePad";
+    case DISPLAY_OPTION_DRC:
+        return "GamePad screen only";
+    default:
+        return "";
+    }
+}
+
+static const char16_t * displayOptionToString16(int32_t displayOption)
 {
     switch (displayOption)
     {
     case DISPLAY_OPTION_USE_DRC:
-        return u"Use \ue087 as controller";
+        return u"Use \uE087 as controller";
     case DISPLAY_OPTION_TV:
         return u"TV Only";
     case DISPLAY_OPTION_BOTH:
-        return u"TV and \ue087";
+        return u"TV and \uE087";
     case DISPLAY_OPTION_DRC:
-        return u"\ue087 screen only";
+        return u"\uE087 screen only";
     default:
         return u"";
     }
+}
+
+static void showAutolaunchNotification(int32_t displayOption)
+{
+    char text[41];
+    snprintf(text, sizeof(text), "Autolaunching: %s", displayOptionToStringWithoutIcons(displayOption));
+    NotificationModule_AddInfoNotification(text);
 }
 
 static void setResolution(int32_t resolution)
@@ -275,9 +300,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         //check autolaunch
         if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
+            showAutolaunchNotification(gAutolaunchDRCSupported);
             return result;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
+            showAutolaunchNotification(gAutolaunchNoDRCSupport);
             return result;
         }
     } else {
@@ -371,10 +398,10 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
                 position[1] = position[0];
                 appearArg.errorArg.errorType = nn::erreula::ErrorType::Message1Button;
             } else {
-                appearArg.errorArg.button2Label = displayOptionToString(position[1]);
+                appearArg.errorArg.button2Label = displayOptionToString16(position[1]);
                 appearArg.errorArg.errorType = nn::erreula::ErrorType::Message2Button;
             }
-            appearArg.errorArg.button1Label = displayOptionToString(position[0]);
+            appearArg.errorArg.button1Label = displayOptionToString16(position[0]);
             if (tvConnected) {
                 appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
             } else {
