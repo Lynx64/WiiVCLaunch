@@ -27,14 +27,24 @@ enum SetResolution {
     SET_RESOLUTION_480P_43 = 103,
 };
 
+enum NotificationTheme {
+    NOTIFICATION_THEME_DARK,
+    NOTIFICATION_THEME_LIGHT,
+};
+
 #define SET_RESOLUTION_4_3_MODIFIER 100
 
+// Wii VC
 extern int32_t gAutolaunchDRCSupported;
 extern int32_t gAutolaunchNoDRCSupport;
 extern int32_t gDisplayOptionsOrder;
 extern int32_t gSetResolution;
 extern bool gUseCustomDialogs;
 
+// Wii Mode
 extern int32_t gWiiMenuSetResolution;
+
+// Other
+extern int32_t gNotificationTheme;
 
 extern bool gInWiiUMenu;

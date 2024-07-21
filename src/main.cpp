@@ -2,6 +2,7 @@
 #include "config.h"
 #include "globals.hpp"
 #include "logger.h"
+#include "notifications.h"
 #include <avm/tv.h>
 #include <coreinit/dynload.h>
 #include <coreinit/mcp.h>
@@ -22,29 +23,6 @@ WUPS_PLUGIN_AUTHOR("Lynx64");
 WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
-
-static void initNotifications()
-{
-    NotificationModuleStatus notifStatus = NotificationModule_InitLibrary();
-    if (notifStatus != NOTIFICATION_MODULE_RESULT_SUCCESS) {
-        DEBUG_FUNCTION_LINE_ERR("NotificationModule_InitLibrary returned %s (%d)",
-                                NotificationModule_GetStatusStr(notifStatus),
-                                notifStatus);
-        return;
-    }
-
-    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
-                                       NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
-                                       3.0f);
-    NMColor notifBackgroundColour = {250, 250, 250, 255};
-    NMColor notifTextColour = {0, 0, 0, 255};
-    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
-                                       NOTIFICATION_MODULE_DEFAULT_OPTION_BACKGROUND_COLOR,
-                                       notifBackgroundColour);
-    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
-                                       NOTIFICATION_MODULE_DEFAULT_OPTION_TEXT_COLOR,
-                                       notifTextColour);
-}
 
 // Gets called ONCE when the plugin was loaded
 INITIALIZE_PLUGIN()

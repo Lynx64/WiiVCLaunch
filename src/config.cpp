@@ -1,6 +1,7 @@
 #include "config.h"
 #include "globals.hpp"
 #include "logger.h"
+#include "notifications.h"
 #include <string_view>
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
@@ -37,6 +38,10 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
         } else if (std::string_view(WII_MENU_SET_RESOLUTION_CONFIG_ID) == item->identifier) {
             gWiiMenuSetResolution = newValue;
             WUPSStorageAPI::Store(item->identifier, gWiiMenuSetResolution);
+        } else if (std::string_view(NOTIFICATION_THEME_CONFIG_ID) == item->identifier) {
+            gNotificationTheme = newValue;
+            WUPSStorageAPI::Store(item->identifier, gNotificationTheme);
+            applyNotificationThemeSetting();
         }
     }
 }
@@ -145,6 +150,23 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                           &multipleValueItemCallback));
 
         root.add(std::move(wiiMenuSettings));
+
+        // Category: Other settings
+        auto otherSettings = WUPSConfigCategory::Create("Other settings");
+
+        // Notification theme
+        constexpr WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
+                {NOTIFICATION_THEME_DARK,  "Dark"},
+                {NOTIFICATION_THEME_LIGHT, "Light"}};
+
+        otherSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(NOTIFICATION_THEME_CONFIG_ID,
+                                                                        "Notification theme",
+                                                                        DEFAULT_NOTIFICATION_THEME_VALUE,
+                                                                        gNotificationTheme,
+                                                                        notificationThemeValues,
+                                                                        &multipleValueItemCallback));
+
+        root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
         return WUPSCONFIG_API_CALLBACK_RESULT_ERROR;
@@ -178,4 +200,6 @@ void initConfig()
         WUPSStorageAPI::Store(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution);
         WUPSStorageAPI::SaveStorage();
     }
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(NOTIFICATION_THEME_CONFIG_ID, gNotificationTheme, DEFAULT_NOTIFICATION_THEME_VALUE);
 }
