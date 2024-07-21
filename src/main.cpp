@@ -261,7 +261,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     for (int32_t chan = 0; chan < 4; chan++) {
         if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
             if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
-                if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK) {
+                if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK ||
+                    kpadStatus[chan].extensionType == WPAD_EXT_MPLUS || kpadStatus[chan].extensionType == WPAD_EXT_MPLUS_NUNCHUK) {
                     buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
                 } else {
                     buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
@@ -401,7 +402,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         for (int32_t chan = 0; chan < 4; chan++) {
             if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
                 if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
-                    if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK) {
+                    if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK ||
+                        kpadStatus[chan].extensionType == WPAD_EXT_MPLUS || kpadStatus[chan].extensionType == WPAD_EXT_MPLUS_NUNCHUK) {
                         buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
                     } else {
                         buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
