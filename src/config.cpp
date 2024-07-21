@@ -128,10 +128,10 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         root.add(std::move(settings));
 
-        // Category: Wii Menu settings
-        auto wiiMenuSettings = WUPSConfigCategory::Create("Wii Menu settings");
+        // Category: Wii Mode settings
+        auto wiiMenuSettings = WUPSConfigCategory::Create("Wii Mode settings");
 
-        // Wii Menu set resolution
+        // Wii Mode set resolution
         constexpr WUPSConfigItemMultipleValues::ValuePair wiiMenuSetResolutionValues[] = {
                 {SET_RESOLUTION_NONE,    "Same as Wii U"},
                 {SET_RESOLUTION_480P,    "480p"},
