@@ -42,6 +42,9 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
             gNotificationTheme = newValue;
             WUPSStorageAPI::Store(item->identifier, gNotificationTheme);
             applyNotificationThemeSetting();
+        } else if (std::string_view(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID) == item->identifier) {
+            gForwarderDisplayOverride = newValue;
+            WUPSStorageAPI::Store(item->identifier, gForwarderDisplayOverride);
         }
     }
 }
@@ -151,6 +154,25 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         root.add(std::move(wiiMenuSettings));
 
+        // Category: WUHB Forwarder settings
+        auto forwarderSettings = WUPSConfigCategory::Create("WUHB Forwarder settings");
+
+        // Override display
+        constexpr WUPSConfigItemMultipleValues::ValuePair forwarderDisplayOverrideValues[] = {
+                {DISPLAY_OPTION_CHOOSE, "Don't override"},
+                {DISPLAY_OPTION_TV,     "TV Only"},
+                {DISPLAY_OPTION_BOTH,   "TV and \uE087"},
+                {DISPLAY_OPTION_DRC,    "\uE087 screen only"}};
+
+        forwarderSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID,
+                                                                            "Override display",
+                                                                            DEFAULT_FORWARDER_DISPLAY_OVERRIDE,
+                                                                            gForwarderDisplayOverride,
+                                                                            forwarderDisplayOverrideValues,
+                                                                            &multipleValueItemCallback));
+
+        root.add(std::move(forwarderSettings));
+
         // Category: Other settings
         auto otherSettings = WUPSConfigCategory::Create("Other settings");
 
@@ -200,6 +222,8 @@ void initConfig()
         WUPSStorageAPI::Store(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution);
         WUPSStorageAPI::SaveStorage();
     }
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID, gForwarderDisplayOverride, DEFAULT_FORWARDER_DISPLAY_OVERRIDE);
 
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(NOTIFICATION_THEME_CONFIG_ID, gNotificationTheme, DEFAULT_NOTIFICATION_THEME_VALUE);
 }

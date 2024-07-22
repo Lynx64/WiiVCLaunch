@@ -11,6 +11,9 @@ bool gUseCustomDialogs = DEFAULT_USE_CUSTOM_DIALOGS_VALUE;
 // Wii Mode
 int32_t gWiiMenuSetResolution = DEFAULT_WII_MENU_SET_RESOLUTION_VALUE;
 
+// WUHB Forwarder
+int32_t gForwarderDisplayOverride = DEFAULT_FORWARDER_DISPLAY_OVERRIDE;
+
 // Other
 int32_t gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
 

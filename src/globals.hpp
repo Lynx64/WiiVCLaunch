@@ -44,6 +44,9 @@ extern bool gUseCustomDialogs;
 // Wii Mode
 extern int32_t gWiiMenuSetResolution;
 
+// WUHB Forwarder
+extern int32_t gForwarderDisplayOverride;
+
 // Other
 extern int32_t gNotificationTheme;
 
