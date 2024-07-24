@@ -501,6 +501,7 @@ DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t 
 DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
 {
     setResolution(gWiiMenuSetResolution);
+    sInputRedirectionActive = false;
     return real_CMPTLaunchMenu(dataBuffer, bufferSize);
 }
 
