@@ -507,6 +507,13 @@ DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
     return real_CMPTLaunchMenu(dataBuffer, bufferSize);
 }
 
+DECL_FUNCTION(int32_t, CMPTLaunchDataManager, void *dataBuffer, uint32_t bufferSize)
+{
+    setResolution(gWiiMenuSetResolution);
+    sInputRedirectionActive = false;
+    return real_CMPTLaunchDataManager(dataBuffer, bufferSize);
+}
+
 DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
 {
     if (enable == 0 && !sLaunchingWiiGame) {
@@ -539,6 +546,7 @@ ON_APPLICATION_REQUESTS_EXIT()
 WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_TitleList, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
+WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchDataManager, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchDataManager, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTAcctSetDrcCtrlEnabled, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTAcctSetDrcCtrlEnabled, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(WPADProbe, WUPS_LOADER_LIBRARY_PADSCORE, WPADProbe, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 
