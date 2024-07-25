@@ -28,6 +28,7 @@ enum SetResolution {
 };
 
 enum NotificationTheme {
+    NOTIFICATION_THEME_OFF,
     NOTIFICATION_THEME_DARK,
     NOTIFICATION_THEME_LIGHT,
 };

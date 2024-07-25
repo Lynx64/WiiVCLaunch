@@ -300,11 +300,13 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         //check autolaunch
         if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
-            showAutolaunchNotification(gAutolaunchDRCSupported);
+            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
+                showAutolaunchNotification(gAutolaunchDRCSupported);
             return result;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
-            showAutolaunchNotification(gAutolaunchNoDRCSupport);
+            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
+                showAutolaunchNotification(gAutolaunchNoDRCSupport);
             return result;
         }
     } else {
@@ -511,7 +513,8 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
         int8_t sensorBarEnabled = 0;
         VPADBASEGetSensorBarSetting(VPAD_CHAN_0, &sensorBarEnabled);
         if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
-            NotificationModule_AddInfoNotification("GamePad sensor bar enabled");
+            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
+                NotificationModule_AddInfoNotification("GamePad sensor bar enabled");
         }
         sInputRedirectionActive = true;
     }
