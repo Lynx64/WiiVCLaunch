@@ -12,7 +12,7 @@ Wii U plugin to enhance launching Wii VC titles.
 Note that it falls back to the GamePad screen if TV not connected.
 
 ## Installation
-Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases)<br/>
+Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest)<br/>
 Copy the `.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`<br/>
 where [ENVIRONMENT] is the actual environment name (most likely 'aroma')
 
