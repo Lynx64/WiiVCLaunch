@@ -95,7 +95,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                 {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
                 {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
                 {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"}};
+                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
+                {SET_RESOLUTION_1080I,   "1080i"},
+                {SET_RESOLUTION_1080P,   "1080p"}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(SET_RESOLUTION_CONFIG_ID,
                                                                    "Set resolution",
@@ -143,7 +145,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                 {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
                 {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
                 {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"}};
+                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
+                {SET_RESOLUTION_1080I,   "1080i"},
+                {SET_RESOLUTION_1080P,   "1080p"}};
 
         wiiMenuSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(WII_MENU_SET_RESOLUTION_CONFIG_ID,
                                                                           "Set resolution",

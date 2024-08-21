@@ -16,12 +16,15 @@ enum DisplayOptionsOrder {
     DISPLAY_OPTIONS_ORDER_RECENT,
 };
 
+//values must align with corresponding values in enum AVMTvResolution in <avm/tv.h> in wut
 enum SetResolution {
     SET_RESOLUTION_NONE    = 0,
     SET_RESOLUTION_576I    = 1,
     SET_RESOLUTION_480I    = 2,
     SET_RESOLUTION_480P    = 3,
     SET_RESOLUTION_720P    = 4,
+    SET_RESOLUTION_1080I   = 6,
+    SET_RESOLUTION_1080P   = 7,
     SET_RESOLUTION_576I_43 = 101,
     SET_RESOLUTION_480I_43 = 102,
     SET_RESOLUTION_480P_43 = 103,
