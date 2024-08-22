@@ -499,7 +499,8 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t unk3)
 {
     setResolution(gSetResolution);
-    backupSysconf();
+    if (gPreserveSysconf)
+        backupSysconf();
     return real_CMPTExPrepareLaunch(unk1, unk2, unk3);
 }
 

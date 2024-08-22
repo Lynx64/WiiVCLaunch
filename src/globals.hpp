@@ -50,5 +50,6 @@ extern int32_t gForwarderDisplayOverride;
 
 // Other
 extern int32_t gNotificationTheme;
+extern bool gPreserveSysconf;
 
 extern bool gInWiiUMenu;
