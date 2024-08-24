@@ -64,6 +64,7 @@ void restoreSysconf()
         std::filesystem::copy_file("/vol/external01/wiiu/SYSCONF",
                                    "/vol/storage_slccmpt01/shared2/sys/SYSCONF",
                                    std::filesystem::copy_options::overwrite_existing);
+        std::filesystem::remove("/vol/external01/wiiu/SYSCONF");
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Copy exception: %s", e.what());
     }
