@@ -13,22 +13,20 @@ void backupSysconf()
         return;
     }
 
-    bool copySuccess = false;
     try {
-        copySuccess = std::filesystem::copy_file("/vol/storage_slccmpt01/shared2/sys/SYSCONF",
-                                                 "/vol/external01/wiiu/SYSCONF",
-                                                 std::filesystem::copy_options::overwrite_existing);
+        bool copySuccess = std::filesystem::copy_file("/vol/storage_slccmpt01/shared2/sys/SYSCONF",
+                                                      "/vol/external01/wiiu/SYSCONF",
+                                                      std::filesystem::copy_options::overwrite_existing);
+        if (copySuccess) {
+            WUPSStorageAPI::Store("restoreSysconf", true);
+            WUPSStorageAPI::SaveStorage();
+        }
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Copy exception: %s", e.what());
     }
     
     Mocha_UnmountFS("slccmpt01");
     Mocha_DeInitLibrary();
-    
-    if (copySuccess) {
-        WUPSStorageAPI::Store("restoreSysconf", true);
-        WUPSStorageAPI::SaveStorage();
-    }
 }
 
 void restoreSysconfIfNeeded()
