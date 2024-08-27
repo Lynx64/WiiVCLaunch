@@ -30,7 +30,7 @@ INITIALIZE_PLUGIN()
 {
     initConfig();
     initNotifications();
-    restoreSysconf();
+    restoreSysconfIfNeeded();
 }
 
 DEINITIALIZE_PLUGIN()

@@ -31,7 +31,7 @@ void backupSysconf()
     }
 }
 
-void restoreSysconf()
+void restoreSysconfIfNeeded()
 {
     bool restoreCheck = false;
     WUPSStorageAPI::Get("restoreSysconf", restoreCheck);
