@@ -3,6 +3,7 @@
 #include "globals.hpp"
 #include "logger.h"
 #include "notifications.h"
+#include "sysconf_preserver.h"
 #include <avm/tv.h>
 #include <coreinit/dynload.h>
 #include <coreinit/mcp.h>
@@ -29,6 +30,7 @@ INITIALIZE_PLUGIN()
 {
     initConfig();
     initNotifications();
+    restoreSysconfIfNeeded();
 }
 
 DEINITIALIZE_PLUGIN()
@@ -497,7 +499,10 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t unk3)
 {
     setResolution(gSetResolution);
-    return real_CMPTExPrepareLaunch(unk1, unk2, unk3);
+    int32_t result = real_CMPTExPrepareLaunch(unk1, unk2, unk3);
+    if (gPreserveSysconf && result == 0)
+        backupSysconf();
+    return result;
 }
 
 DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)

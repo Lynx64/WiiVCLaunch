@@ -49,13 +49,13 @@ CXXFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
 CFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
 endif
 
-LIBS	:= -lnotifications -lwups -lwut
+LIBS	:= -lmocha -lnotifications -lwups -lwut
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT)
+LIBDIRS	:= $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT) $(WUT_ROOT)/usr
 
 #-------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

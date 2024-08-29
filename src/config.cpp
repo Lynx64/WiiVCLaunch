@@ -16,6 +16,9 @@ void boolItemCallback(ConfigItemBoolean *item, bool newValue)
         if (std::string_view(USE_CUSTOM_DIALOGS_CONFIG_ID) == item->identifier) {
             gUseCustomDialogs = newValue;
             WUPSStorageAPI::Store(item->identifier, gUseCustomDialogs);
+        } else if (std::string_view(PRESERVE_SYSCONF_CONFIG_ID) == item->identifier) {
+            gPreserveSysconf = newValue;
+            WUPSStorageAPI::Store(item->identifier, gPreserveSysconf);
         }
     }
 }
@@ -193,6 +196,13 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                         notificationThemeValues,
                                                                         &multipleValueItemCallback));
 
+        // Preserve SYSCONF
+        otherSettings.add(WUPSConfigItemBoolean::Create(PRESERVE_SYSCONF_CONFIG_ID,
+                                                        "Preserve SYSCONF on Wii VC title launch",
+                                                        DEFAULT_PRESERVE_SYSCONF_VALUE,
+                                                        gPreserveSysconf,
+                                                        &boolItemCallback));
+
         root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
@@ -231,4 +241,6 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID, gForwarderDisplayOverride, DEFAULT_FORWARDER_DISPLAY_OVERRIDE);
 
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(NOTIFICATION_THEME_CONFIG_ID, gNotificationTheme, DEFAULT_NOTIFICATION_THEME_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
 }
