@@ -12,46 +12,48 @@ WUPS_USE_STORAGE("WiiVCLaunch");
 
 void boolItemCallback(ConfigItemBoolean *item, bool newValue)
 {
-    if (item && item->identifier) {
-        if (std::string_view(USE_CUSTOM_DIALOGS_CONFIG_ID) == item->identifier) {
-            gUseCustomDialogs = newValue;
-            WUPSStorageAPI::Store(item->identifier, gUseCustomDialogs);
-        } else if (std::string_view(PRESERVE_SYSCONF_CONFIG_ID) == item->identifier) {
-            gPreserveSysconf = newValue;
-            WUPSStorageAPI::Store(item->identifier, gPreserveSysconf);
-        } else if (std::string_view(PERMANENT_NET_CONFIG_CONFIG_ID) == item->identifier) {
-            gPermanentNetConfig = newValue;
-            WUPSStorageAPI::Store(item->identifier, gPermanentNetConfig);
-        }
+    if (!item || !item->identifier) {
+        return;
+    }
+    if (std::string_view(USE_CUSTOM_DIALOGS_CONFIG_ID) == item->identifier) {
+        gUseCustomDialogs = newValue;
+        WUPSStorageAPI::Store(item->identifier, gUseCustomDialogs);
+    } else if (std::string_view(PRESERVE_SYSCONF_CONFIG_ID) == item->identifier) {
+        gPreserveSysconf = newValue;
+        WUPSStorageAPI::Store(item->identifier, gPreserveSysconf);
+    } else if (std::string_view(PERMANENT_NET_CONFIG_CONFIG_ID) == item->identifier) {
+        gPermanentNetConfig = newValue;
+        WUPSStorageAPI::Store(item->identifier, gPermanentNetConfig);
     }
 }
 
 void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue)
 {
-    if (item && item->identifier) {
-        if (std::string_view(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID) == item->identifier) {
-            gAutolaunchDRCSupported = newValue;
-            WUPSStorageAPI::Store(item->identifier, gAutolaunchDRCSupported);
-        } else if (std::string_view(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID) == item->identifier) {
-            gAutolaunchNoDRCSupport = newValue;
-            WUPSStorageAPI::Store(item->identifier, gAutolaunchNoDRCSupport);
-        } else if (std::string_view(DISPLAY_OPTIONS_ORDER_CONFIG_ID) == item->identifier) {
-            gDisplayOptionsOrder = newValue;
-            WUPSStorageAPI::Store(item->identifier, gDisplayOptionsOrder);
-        } else if (std::string_view(SET_RESOLUTION_CONFIG_ID) == item->identifier) {
-            gSetResolution = newValue;
-            WUPSStorageAPI::Store(item->identifier, gSetResolution);
-        } else if (std::string_view(WII_MENU_SET_RESOLUTION_CONFIG_ID) == item->identifier) {
-            gWiiMenuSetResolution = newValue;
-            WUPSStorageAPI::Store(item->identifier, gWiiMenuSetResolution);
-        } else if (std::string_view(NOTIFICATION_THEME_CONFIG_ID) == item->identifier) {
-            gNotificationTheme = newValue;
-            WUPSStorageAPI::Store(item->identifier, gNotificationTheme);
-            applyNotificationThemeSetting();
-        } else if (std::string_view(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID) == item->identifier) {
-            gForwarderDisplayOverride = newValue;
-            WUPSStorageAPI::Store(item->identifier, gForwarderDisplayOverride);
-        }
+    if (!item || !item->identifier) {
+        return;
+    }
+    if (std::string_view(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID) == item->identifier) {
+        gAutolaunchDRCSupported = newValue;
+        WUPSStorageAPI::Store(item->identifier, gAutolaunchDRCSupported);
+    } else if (std::string_view(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID) == item->identifier) {
+        gAutolaunchNoDRCSupport = newValue;
+        WUPSStorageAPI::Store(item->identifier, gAutolaunchNoDRCSupport);
+    } else if (std::string_view(DISPLAY_OPTIONS_ORDER_CONFIG_ID) == item->identifier) {
+        gDisplayOptionsOrder = newValue;
+        WUPSStorageAPI::Store(item->identifier, gDisplayOptionsOrder);
+    } else if (std::string_view(SET_RESOLUTION_CONFIG_ID) == item->identifier) {
+        gSetResolution = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSetResolution);
+    } else if (std::string_view(WII_MENU_SET_RESOLUTION_CONFIG_ID) == item->identifier) {
+        gWiiMenuSetResolution = newValue;
+        WUPSStorageAPI::Store(item->identifier, gWiiMenuSetResolution);
+    } else if (std::string_view(NOTIFICATION_THEME_CONFIG_ID) == item->identifier) {
+        gNotificationTheme = newValue;
+        WUPSStorageAPI::Store(item->identifier, gNotificationTheme);
+        applyNotificationThemeSetting();
+    } else if (std::string_view(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID) == item->identifier) {
+        gForwarderDisplayOverride = newValue;
+        WUPSStorageAPI::Store(item->identifier, gForwarderDisplayOverride);
     }
 }
 
