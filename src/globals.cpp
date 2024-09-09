@@ -17,5 +17,6 @@ int32_t gForwarderDisplayOverride = DEFAULT_FORWARDER_DISPLAY_OVERRIDE;
 // Other
 int32_t gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
 bool gPreserveSysconf = DEFAULT_PRESERVE_SYSCONF_VALUE;
+bool gPermanentNetConfig = DEFAULT_PERMANENT_NET_CONFIG_VALUE;
 
 bool gInWiiUMenu = false;

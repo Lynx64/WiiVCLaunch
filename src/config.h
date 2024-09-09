@@ -16,6 +16,7 @@
 // Other
 #define DEFAULT_NOTIFICATION_THEME_VALUE        NOTIFICATION_THEME_LIGHT
 #define DEFAULT_PRESERVE_SYSCONF_VALUE          false
+#define DEFAULT_PERMANENT_NET_CONFIG_VALUE      false
 
 // Wii VC
 #define AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID      "gAutolaunchDRCSupported"
@@ -33,5 +34,6 @@
 // Other
 #define NOTIFICATION_THEME_CONFIG_ID            "notificationTheme"
 #define PRESERVE_SYSCONF_CONFIG_ID              "preserveSysconf"
+#define PERMANENT_NET_CONFIG_CONFIG_ID          "permanentNetConfig"
 
 void initConfig();

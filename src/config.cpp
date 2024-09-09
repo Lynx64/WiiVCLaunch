@@ -19,6 +19,9 @@ void boolItemCallback(ConfigItemBoolean *item, bool newValue)
         } else if (std::string_view(PRESERVE_SYSCONF_CONFIG_ID) == item->identifier) {
             gPreserveSysconf = newValue;
             WUPSStorageAPI::Store(item->identifier, gPreserveSysconf);
+        } else if (std::string_view(PERMANENT_NET_CONFIG_CONFIG_ID) == item->identifier) {
+            gPermanentNetConfig = newValue;
+            WUPSStorageAPI::Store(item->identifier, gPermanentNetConfig);
         }
     }
 }
@@ -203,6 +206,13 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                         gPreserveSysconf,
                                                         &boolItemCallback));
 
+        // Permanent Internet Settings
+        otherSettings.add(WUPSConfigItemBoolean::Create(PERMANENT_NET_CONFIG_CONFIG_ID,
+                                                        "Permanent Wii Internet Settings",
+                                                        DEFAULT_PERMANENT_NET_CONFIG_VALUE,
+                                                        gPermanentNetConfig,
+                                                        &boolItemCallback));
+
         root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
@@ -243,4 +253,6 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(NOTIFICATION_THEME_CONFIG_ID, gNotificationTheme, DEFAULT_NOTIFICATION_THEME_VALUE);
 
     WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(PERMANENT_NET_CONFIG_CONFIG_ID, gPermanentNetConfig, DEFAULT_PERMANENT_NET_CONFIG_VALUE);
 }

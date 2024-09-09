@@ -2,6 +2,7 @@
 #include "config.h"
 #include "globals.hpp"
 #include "logger.h"
+#include "mocha.h"
 #include "notifications.h"
 #include "sysconf_preserver.h"
 #include <avm/tv.h>
@@ -496,10 +497,35 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     return result;
 }
 
+static void patchNetConfigOverwrite()
+{
+    if (initMocha() != MOCHA_RESULT_SUCCESS)
+        return;
+    
+    uint8_t data[4] {};
+    Mocha_IOSUMemoryRead(0x0503A1C4, data, 2); // cmp r6,#0x3
+    Mocha_IOSUMemoryRead(0x0503A1FE, data + 2, 2); // add r3,sp,#0x330
+    if (data[0] != 0x2E || data[1] != 0x03 || data[2] != 0xAB || data[3] != 0xCC) {
+        Mocha_DeInitLibrary();
+        return;
+    }
+
+    data[0] = 0x02;
+    Mocha_IOSUMemoryWrite(0x0503A1C5, data, 1); // cmp r6,#0x2
+    data[0] = 0xC6;
+    Mocha_IOSUMemoryWrite(0x0503A1FF, data, 1); // add r3,sp,#0x318
+
+    Mocha_DeInitLibrary();
+}
+
 DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t unk3)
 {
     setResolution(gSetResolution);
+    if (gPermanentNetConfig)
+        patchNetConfigOverwrite();
+
     int32_t result = real_CMPTExPrepareLaunch(unk1, unk2, unk3);
+    
     if (gPreserveSysconf && result == 0)
         backupSysconf();
     return result;
@@ -517,6 +543,13 @@ DECL_FUNCTION(int32_t, CMPTLaunchDataManager, void *dataBuffer, uint32_t bufferS
     setResolution(gWiiMenuSetResolution);
     sInputRedirectionActive = false;
     return real_CMPTLaunchDataManager(dataBuffer, bufferSize);
+}
+
+DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, void *confBuffer, uint32_t confBufferSize, void *imgsBuffer, uint32_t imgsBufferSize)
+{
+    if (gPermanentNetConfig)
+        patchNetConfigOverwrite();
+    return real_MCP_LaunchCompat(handle, confBuffer, confBufferSize, imgsBuffer, imgsBufferSize);
 }
 
 DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
@@ -556,3 +589,5 @@ WUPS_MUST_REPLACE_FOR_PROCESS(CMPTAcctSetDrcCtrlEnabled, WUPS_LOADER_LIBRARY_NN_
 WUPS_MUST_REPLACE_FOR_PROCESS(WPADProbe, WUPS_LOADER_LIBRARY_PADSCORE, WPADProbe, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExPrepareLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExPrepareLaunch, WUPS_FP_TARGET_PROCESS_GAME);
+
+WUPS_MUST_REPLACE(MCP_LaunchCompat, WUPS_LOADER_LIBRARY_COREINIT, MCP_LaunchCompat);
