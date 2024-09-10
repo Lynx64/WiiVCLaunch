@@ -1,5 +1,5 @@
 # Wii VC Launch
-Wii U plugin to enhance launching Wii VC titles.
+Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 
 ## Features
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
