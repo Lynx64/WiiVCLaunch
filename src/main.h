@@ -1,4 +1,4 @@
 #pragma once
 
-#define VERSION     "v0.7"
+#define VERSION     "v1.0"
 #define DESCRIPTION "For launching Wii VC titles"
