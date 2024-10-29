@@ -502,18 +502,17 @@ static void patchNetConfigOverwrite()
     if (initMocha() != MOCHA_RESULT_SUCCESS)
         return;
     
-    uint8_t data[4] {};
-    Mocha_IOSUMemoryRead(0x0503A1C4, data, 2); // cmp r6,#0x3
-    Mocha_IOSUMemoryRead(0x0503A1FE, data + 2, 2); // add r3,sp,#0x330
-    if (data[0] != 0x2E || data[1] != 0x03 || data[2] != 0xAB || data[3] != 0xCC) {
+    uint32_t data0 = 0;
+    uint32_t data1 = 0;
+    Mocha_IOSUKernelRead32(0x0503A1C4, &data0); // cmp r6,#0x3 ; bne LAB_0503a178
+    Mocha_IOSUKernelRead32(0x0503A1FC, &data1); // adds r5,#0x18 ; add r3,sp,#0x330
+    if (data0 != 0x2E03D1D7 || data1 != 0x3518ABCC) {
         Mocha_DeInitLibrary();
         return;
     }
 
-    data[0] = 0x02;
-    Mocha_IOSUMemoryWrite(0x0503A1C5, data, 1); // cmp r6,#0x2
-    data[0] = 0xC6;
-    Mocha_IOSUMemoryWrite(0x0503A1FF, data, 1); // add r3,sp,#0x318
+    Mocha_IOSUKernelWrite32(0x0503A1C4, 0x2E02D1D7); // cmp r6,#0x2 ; bne LAB_0503a178
+    Mocha_IOSUKernelWrite32(0x0503A1FC, 0x3518ABC6); // adds r5,#0x18 ; add r3,sp,#0x318
 
     Mocha_DeInitLibrary();
 }
