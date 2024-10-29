@@ -47,7 +47,6 @@ static void (*dyn_ErrEulaAppearError)(const nn::erreula::AppearArg &arg)        
 static void (*dyn_ErrEulaCalc)(const nn::erreula::ControllerInfo &controllerInfo)   = nullptr;
 static void (*dyn_ErrEulaDisappearError)()                                          = nullptr;
 static nn::erreula::State (*dyn_ErrEulaGetStateErrorViewer)()                       = nullptr;
-static bool (*dyn_ErrEulaIsDecideSelectButtonError)()                               = nullptr;
 static bool (*dyn_ErrEulaIsDecideSelectLeftButtonError)()                           = nullptr;
 static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                          = nullptr;
 
@@ -324,7 +323,6 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaCalc__3RplFRCQ3_2nn7erreula14ControllerInfo", (void**) &dyn_ErrEulaCalc) != OS_DYNLOAD_OK ||
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaDisappearError__3RplFv", (void**) &dyn_ErrEulaDisappearError) != OS_DYNLOAD_OK ||
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaGetStateErrorViewer__3RplFv", (void**) &dyn_ErrEulaGetStateErrorViewer) != OS_DYNLOAD_OK ||
-        OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaIsDecideSelectButtonError__3RplFv", (void**) &dyn_ErrEulaIsDecideSelectButtonError) != OS_DYNLOAD_OK ||
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaIsDecideSelectLeftButtonError__3RplFv", (void**) &dyn_ErrEulaIsDecideSelectLeftButtonError) != OS_DYNLOAD_OK ||
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaIsDecideSelectRightButtonError__3RplFv", (void**) &dyn_ErrEulaIsDecideSelectRightButtonError) != OS_DYNLOAD_OK) {
         
