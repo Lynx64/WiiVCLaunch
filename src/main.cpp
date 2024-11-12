@@ -268,7 +268,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     MCPError mcpError = MCP_GetTitleInfo(mcpHandle, metaXml->title_id, &titleInfo);
     MCP_Close(mcpHandle);
     if (mcpError != 0 || titleInfo.appType != MCP_APP_TYPE_GAME_WII) {
-        return result;
+        return ACP_RESULT_SUCCESS;
     }
 
     //read drc_use value
@@ -305,12 +305,12 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             setDisplay(gAutolaunchDRCSupported);
             if (gNotificationTheme != NOTIFICATION_THEME_OFF)
                 showAutolaunchNotification(gAutolaunchDRCSupported);
-            return result;
+            return ACP_RESULT_SUCCESS;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
             if (gNotificationTheme != NOTIFICATION_THEME_OFF)
                 showAutolaunchNotification(gAutolaunchNoDRCSupport);
-            return result;
+            return ACP_RESULT_SUCCESS;
         }
     } else {
         activateCursor = false;
@@ -318,7 +318,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
     //load erreula
     if (OSDynLoad_Acquire("erreula.rpl", &erreulaModule) != OS_DYNLOAD_OK) {
-        return result;
+        return ACP_RESULT_SUCCESS;
     }
     if (OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaAppearError__3RplFRCQ3_2nn7erreula9AppearArg", (void**) &dyn_ErrEulaAppearError) != OS_DYNLOAD_OK ||
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaCalc__3RplFRCQ3_2nn7erreula14ControllerInfo", (void**) &dyn_ErrEulaCalc) != OS_DYNLOAD_OK ||
@@ -328,7 +328,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         OSDynLoad_FindExport(erreulaModule, OS_DYNLOAD_EXPORT_FUNC, "ErrEulaIsDecideSelectRightButtonError__3RplFv", (void**) &dyn_ErrEulaIsDecideSelectRightButtonError) != OS_DYNLOAD_OK) {
         
         OSDynLoad_Release(erreulaModule);
-        return result;
+        return ACP_RESULT_SUCCESS;
     }
 
     int32_t recent[4] = {DISPLAY_OPTION_USE_DRC, DISPLAY_OPTION_TV, DISPLAY_OPTION_BOTH, DISPLAY_OPTION_DRC};
@@ -478,7 +478,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (sUserCancelledCustomDialogs) {
         return ACP_RESULT_MEDIA_NOT_READY; //return error to abort launching
     } else if (!sLaunchingWiiGame) {
-        return result; //return early if we're exiting from ProcUI
+        return ACP_RESULT_SUCCESS; //return early if we're exiting from ProcUI
     }
 
     setDisplay(selectedDisplay);
@@ -504,7 +504,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         WUPSStorageAPI::SaveStorage();
     }
 
-    return result;
+    return ACP_RESULT_SUCCESS;
 }
 
 DECL_FUNCTION(bool, ErrEulaIsDecideSelectButtonError__3RplFv)
