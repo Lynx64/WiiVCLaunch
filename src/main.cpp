@@ -52,6 +52,7 @@ static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                      
 
 static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
+static bool sUserCancelledCustomDialogs = false;
 
 //remap buttons functions copied from https://github.com/wiiu-env/WiiUPluginLoaderBackend/blob/cb527add76c95bff3fb1ddef7a016fec3db4c497/source/utils/ConfigUtils.cpp#LL35C7-L35C7
 static uint32_t remapWiiMoteButtons(uint32_t buttons)
@@ -462,12 +463,23 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             activateCursor = true;
             onFirstPage = !onFirstPage;
             dyn_ErrEulaDisappearError();
+        } else if (buttonsHeld & VPAD_BUTTON_B) {
+            sUserCancelledCustomDialogs = true;
+            sLaunchingWiiGame = false;
+            break;
         }
         
     } //end while
 
-    dyn_ErrEulaDisappearError();
+    if (!sUserCancelledCustomDialogs)
+        dyn_ErrEulaDisappearError();
     OSDynLoad_Release(erreulaModule);
+
+    if (sUserCancelledCustomDialogs) {
+        return ACP_RESULT_MEDIA_NOT_READY; //return error to abort launching
+    } else if (!sLaunchingWiiGame) {
+        return result; //return early if we're exiting from ProcUI
+    }
 
     setDisplay(selectedDisplay);
 
@@ -493,6 +505,15 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     }
 
     return result;
+}
+
+DECL_FUNCTION(bool, ErrEulaIsDecideSelectButtonError__3RplFv)
+{
+    if (sUserCancelledCustomDialogs) {
+        sUserCancelledCustomDialogs = false;
+        return true;
+    }
+    return real_ErrEulaIsDecideSelectButtonError__3RplFv();
 }
 
 static void patchNetConfigOverwrite()
@@ -580,6 +601,7 @@ ON_APPLICATION_REQUESTS_EXIT()
 //replace only for Wii U Menu process
 WUPS_MUST_REPLACE_FOR_PROCESS(MCP_TitleList, WUPS_LOADER_LIBRARY_COREINIT, MCP_TitleList, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(ACPGetLaunchMetaXml, WUPS_LOADER_LIBRARY_NN_ACP, ACPGetLaunchMetaXml, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
+WUPS_MUST_REPLACE_FOR_PROCESS(ErrEulaIsDecideSelectButtonError__3RplFv, WUPS_LOADER_LIBRARY_ERREULA, ErrEulaIsDecideSelectButtonError__3RplFv, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchMenu, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchMenu, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTLaunchDataManager, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTLaunchDataManager, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTAcctSetDrcCtrlEnabled, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTAcctSetDrcCtrlEnabled, WUPS_FP_TARGET_PROCESS_WII_U_MENU);
