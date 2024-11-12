@@ -5,11 +5,10 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
 - Autolaunch into a specific display option bypassing all dialogs
   - Keep A pressed when launching a game to force open the Select a display option dialogs
+  - Falls back to the GamePad screen if TV not connected
 - Set the resolution to 480p, 720p, 480i, or 576i (including 4:3 variants)
   - Additional separate setting for the Wii Menu resolution
-- Enable GamePad sensor bar for built in dialogs
-
-Note that it falls back to the GamePad screen if TV not connected.
+- Enables the GamePad sensor bar for built in dialogs
 
 ## Installation
 Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest)<br/>
