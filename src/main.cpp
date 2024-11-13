@@ -407,9 +407,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             }
             appearArg.errorArg.button1Label = displayOptionToString16(position[0]);
             if (tvConnected) {
-                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d More options";
+                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\uE07D More options";
             } else {
-                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\ue07d Refresh";
+                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\uE07D Detect TV";
             }
             dyn_ErrEulaAppearError(appearArg);
             continue;
