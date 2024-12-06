@@ -17,8 +17,8 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
   - Can be set separately for Wii VC and Wii Mode
 
 ## Installation
-Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest)<br/>
-Copy the `.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`<br/>
+Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`<br/>
+Copy the `WiiVCLaunch.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`<br/>
 where [ENVIRONMENT] is the actual environment name (most likely 'aroma')
 
 ## Usage
