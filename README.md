@@ -30,3 +30,17 @@ For building you need:
 - [libmocha](https://github.com/wiiu-env/libmocha)
 
 then run `make`
+
+## Building using the Dockerfile
+It's possible to use a docker image for building. This way you don't need anything installed on your host system other than Docker.
+
+```
+# Build docker image (only needed once)
+docker build . -t wiivclaunch-builder
+
+# make
+docker run --rm -v ${PWD}:/project wiivclaunch-builder make
+
+# make clean
+docker run --rm -v ${PWD}:/project wiivclaunch-builder make clean
+```
