@@ -14,7 +14,7 @@ void backupSysconf()
     }
 
     try {
-        bool copySuccess = std::filesystem::copy_file("/vol/storage_slccmpt01/shared2/sys/SYSCONF",
+        bool copySuccess = std::filesystem::copy_file("slccmpt01:/shared2/sys/SYSCONF",
                                                       "/vol/external01/wiiu/SYSCONF",
                                                       std::filesystem::copy_options::overwrite_existing);
         if (copySuccess) {
@@ -60,7 +60,7 @@ void restoreSysconfIfNeeded()
 
     try {
         std::filesystem::copy_file("/vol/external01/wiiu/SYSCONF",
-                                   "/vol/storage_slccmpt01/shared2/sys/SYSCONF",
+                                   "slccmpt01:/shared2/sys/SYSCONF",
                                    std::filesystem::copy_options::overwrite_existing);
         std::filesystem::remove("/vol/external01/wiiu/SYSCONF");
     } catch (const std::exception &e) {
