@@ -252,15 +252,15 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 {
     int32_t result = real_ACPGetLaunchMetaXml(metaXml);
 
-    if (sLaunchingWiiGame || !gUseCustomDialogs || !gInWiiUMenu) {
-        //sLaunchingWiiGame: the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
+    if (!gUseCustomDialogs || !gInWiiUMenu) {
         return result;
-    }
-    if (result != ACP_RESULT_SUCCESS) {
+    } else if (result != ACP_RESULT_SUCCESS) {
         sLaunchingWiiGame = false;
         return result;
+    } else if (sLaunchingWiiGame) {
+        //the rest of this function has already ran once, no need to run again (ACPGetLaunchMetaXml can get called twice)
+        return ACP_RESULT_SUCCESS;
     }
-    sLaunchingWiiGame = true;
 
     //check if wii game launched, if not then return
     MCPTitleListType titleInfo;
@@ -270,6 +270,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     if (mcpError != 0 || titleInfo.appType != MCP_APP_TYPE_GAME_WII) {
         return ACP_RESULT_SUCCESS;
     }
+    sLaunchingWiiGame = true;
 
     //read drc_use value
     const bool DRC_USE = metaXml->drc_use == 65537;
