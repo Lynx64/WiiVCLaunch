@@ -18,6 +18,10 @@
 #define DEFAULT_PRESERVE_SYSCONF_VALUE          true
 #define DEFAULT_PERMANENT_NET_CONFIG_VALUE      false
 
+// SYSCONF
+#define DEFAULT_SYSCONF_LANGUAGE_VALUE          -1
+#define DEFAULT_SYSCONF_EULA_VALUE              -1
+
 // Wii VC
 #define AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID      "gAutolaunchDRCSupported"
 #define AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID     "gAutolaunchNoDRCSupport"
@@ -35,5 +39,9 @@
 #define NOTIFICATION_THEME_CONFIG_ID            "notificationTheme"
 #define PRESERVE_SYSCONF_CONFIG_ID              "preserveSysconf"
 #define PERMANENT_NET_CONFIG_CONFIG_ID          "permanentNetConfig"
+
+// SYSCONF
+#define SYSCONF_LANGUAGE_CONFIG_ID              "sysconfLanguage"
+#define SYSCONF_EULA_CONFIG_ID                  "sysconfEula"
 
 void initConfig();

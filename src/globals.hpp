@@ -56,4 +56,8 @@ extern int32_t gNotificationTheme;
 extern bool gPreserveSysconf;
 extern bool gPermanentNetConfig;
 
+// SYSCONF
+extern int32_t gSysconfLanguage;
+extern int32_t gSysconfEula;
+
 extern bool gInWiiUMenu;

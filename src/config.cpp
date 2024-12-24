@@ -54,6 +54,12 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
     } else if (std::string_view(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID) == item->identifier) {
         gForwarderDisplayOverride = newValue;
         WUPSStorageAPI::Store(item->identifier, gForwarderDisplayOverride);
+    } else if (std::string_view(SYSCONF_LANGUAGE_CONFIG_ID) == item->identifier) {
+        gSysconfLanguage = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSysconfLanguage);
+    } else if (std::string_view(SYSCONF_EULA_CONFIG_ID) == item->identifier) {
+        gSysconfEula = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSysconfEula);
     }
 }
 
@@ -215,6 +221,44 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                         gPermanentNetConfig,
                                                         &boolItemCallback));
 
+        // Sub Category: Force SYSCONF flags
+        auto forceSysconfFlags = WUPSConfigCategory::Create("Force SYSCONF flags");
+
+        // Language
+        constexpr WUPSConfigItemMultipleValues::ValuePair sysconfLanguageValues[] = {
+                {-1, "-"},
+                { 0, "Japanese"},
+                { 1, "English"},
+                { 2, "German"},
+                { 3, "French"},
+                { 4, "Spanish"},
+                { 5, "Italian"},
+                { 6, "Dutch"},
+                { 7, "Chinese (Simplified)"},
+                { 8, "Chinese (Traditional)"},
+                { 9, "Korean"}};
+
+        forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_LANGUAGE_CONFIG_ID,
+                                                                            "Language",
+                                                                            DEFAULT_SYSCONF_LANGUAGE_VALUE,
+                                                                            gSysconfLanguage,
+                                                                            sysconfLanguageValues,
+                                                                            &multipleValueItemCallback));
+
+        // EULA
+        constexpr WUPSConfigItemMultipleValues::ValuePair sysconfEulaValues[] = {
+                {-1, "-"},
+                { 0, "FALSE"},
+                { 1, "TRUE"}};
+
+        forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_EULA_CONFIG_ID,
+                                                                            "EULA",
+                                                                            DEFAULT_SYSCONF_EULA_VALUE,
+                                                                            gSysconfEula,
+                                                                            sysconfEulaValues,
+                                                                            &multipleValueItemCallback));
+
+        otherSettings.add(std::move(forceSysconfFlags)); // End of Sub Category: Force SYSCONF flags
         root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
@@ -257,4 +301,8 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
 
     WUPSStorageAPI::GetOrStoreDefault(PERMANENT_NET_CONFIG_CONFIG_ID, gPermanentNetConfig, DEFAULT_PERMANENT_NET_CONFIG_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(SYSCONF_LANGUAGE_CONFIG_ID, gSysconfLanguage, DEFAULT_SYSCONF_LANGUAGE_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(SYSCONF_EULA_CONFIG_ID, gSysconfEula, DEFAULT_SYSCONF_EULA_VALUE);
 }
