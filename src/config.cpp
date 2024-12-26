@@ -226,17 +226,17 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         // Language
         constexpr WUPSConfigItemMultipleValues::ValuePair sysconfLanguageValues[] = {
-                {-1, "-"},
-                { 0, "Japanese"},
-                { 1, "English"},
-                { 2, "German"},
-                { 3, "French"},
-                { 4, "Spanish"},
-                { 5, "Italian"},
-                { 6, "Dutch"},
-                { 7, "Chinese (Simplified)"},
-                { 8, "Chinese (Traditional)"},
-                { 9, "Korean"}};
+                {SYSCONF_LANGUAGE_NO_OVERRIDE,         "-"},
+                {SYSCONF_LANGUAGE_JAPANESE,            "Japanese"},
+                {SYSCONF_LANGUAGE_ENGLISH,             "English"},
+                {SYSCONF_LANGUAGE_GERMAN,              "German"},
+                {SYSCONF_LANGUAGE_FRENCH,              "French"},
+                {SYSCONF_LANGUAGE_SPANISH,             "Spanish"},
+                {SYSCONF_LANGUAGE_ITALIAN,             "Italian"},
+                {SYSCONF_LANGUAGE_DUTCH,               "Dutch"},
+                {SYSCONF_LANGUAGE_SIMPLIFIED_CHINESE,  "Chinese (Simplified)"},
+                {SYSCONF_LANGUAGE_TRADITIONAL_CHINESE, "Chinese (Traditional)"},
+                {SYSCONF_LANGUAGE_KOREAN,              "Korean"}};
 
         forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_LANGUAGE_CONFIG_ID,
                                                                             "Language",
@@ -247,9 +247,9 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         // EULA
         constexpr WUPSConfigItemMultipleValues::ValuePair sysconfEulaValues[] = {
-                {-1, "-"},
-                { 0, "FALSE"},
-                { 1, "TRUE"}};
+                {SYSCONF_EULA_NO_OVERRIDE, "-"},
+                {SYSCONF_EULA_FALSE,       "FALSE"},
+                {SYSCONF_EULA_TRUE,        "TRUE"}};
 
         forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_EULA_CONFIG_ID,
                                                                             "EULA",

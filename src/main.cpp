@@ -553,10 +553,10 @@ DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t 
 static void patchSysconf(uint8_t *confBuffer)
 {
     // conf.bin starts at offset 0x80
-    if (gSysconfLanguage != -1)
+    if (gSysconfLanguage != SYSCONF_LANGUAGE_NO_OVERRIDE)
         *(confBuffer + 0x9C) = gSysconfLanguage; //language
     //*(confBuffer + 0x9D) = 1; //country
-    if (gSysconfEula != -1)
+    if (gSysconfEula != SYSCONF_EULA_NO_OVERRIDE)
         *(confBuffer + 0x9E) = gSysconfEula; //eula
 }
 
@@ -574,7 +574,7 @@ DECL_FUNCTION(int32_t, CMPTLaunchDataManager, void *dataBuffer, uint32_t bufferS
     return real_CMPTLaunchDataManager(dataBuffer, bufferSize);
 }
 
-DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, void *confBuffer, uint32_t confBufferSize, void *imgsBuffer, uint32_t imgsBufferSize)
+DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, uint8_t *confBuffer, uint32_t confBufferSize, void *imgsBuffer, uint32_t imgsBufferSize)
 {
     if (gPermanentNetConfig)
         patchNetConfigOverwrite();
