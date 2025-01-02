@@ -28,6 +28,8 @@ If custom dialogs are disabled:
 - Autolaunch cannot be used
 - Set resolution can still be used
 
+"Preserve SYSCONF on Wii VC title launch" and "Permanent Wii Internet Settings" (Disables Wii Internet Connection Settings overwrite) are useful in combination with [Priiloader](https://github.com/DacoTaco/priiloader) or Wii homebrew to change the Internet Connection settings. If you don't have Priiloader installed you don't need to worry about them and can leave them both on `false`.
+
 ## Building
 For building you need:
 - [wups](https://github.com/wiiu-env/WiiUPluginSystem)
