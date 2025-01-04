@@ -24,6 +24,8 @@ where [ENVIRONMENT] is the actual environment name (most likely 'aroma').
 ## Usage
 Open the plugin config menu by pressing L, DPAD Down and Minus on the GamePad, Pro Controller or Classic Controller, or B, DPAD Down and Minus on a Wii Remote.
 
+Press B on any controller to back out of the custom dialogs.
+
 If custom dialogs are disabled:
 - Autolaunch cannot be used
 - Set resolution can still be used
