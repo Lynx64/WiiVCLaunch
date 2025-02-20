@@ -217,6 +217,9 @@ static void setDisplay(int32_t displayOption)
 
 ON_APPLICATION_START()
 {
+#ifdef DEBUG
+    initLogging();
+#endif
     if (OSGetTitleID() == 0x0005001010040000 || // Wii U Menu JPN
         OSGetTitleID() == 0x0005001010040100 || // Wii U Menu USA
         OSGetTitleID() == 0x0005001010040200) { // Wii U Menu EUR
@@ -597,6 +600,9 @@ DECL_FUNCTION(int32_t, WPADProbe, WPADChan chan, WPADExtensionType *outExtension
 ON_APPLICATION_REQUESTS_EXIT()
 {
     sInputRedirectionActive = false;
+#ifdef DEBUG
+    deinitLogging();
+#endif
 }
 
 //replace only for Wii U Menu process
