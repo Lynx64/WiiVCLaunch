@@ -17,7 +17,15 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
   - Can be set separately for Wii VC and Wii Mode
 
 ## Installation
-Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`.<br/>
+For convenience, you can download Wii VC Launch directly on your console from the [Homebrew App Store](https://github.com/fortheusers/hb-appstore).
+
+<p align="center">
+  <a href="https://hb-app.store/wiiu/WiiVCLaunch">
+    <img width="335" alt="Get it on the Homebrew App Store!" src="https://github.com/user-attachments/assets/4471a846-9e8f-4a93-9a5c-a252e70d053a" />
+  </a>
+</p>
+
+Alternatively, download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`.<br/>
 Copy the `WiiVCLaunch.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`,<br/>
 where [ENVIRONMENT] is the actual environment name (most likely 'aroma').
 
