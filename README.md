@@ -42,8 +42,8 @@ If custom dialogs are disabled:
 
 ## Building
 For building you need:
-- [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [wut](https://github.com/devkitPro/wut)
+- [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [libnotifications](https://github.com/wiiu-env/libnotifications)
 - [libmocha](https://github.com/wiiu-env/libmocha)
 
