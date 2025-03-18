@@ -19,4 +19,8 @@ int32_t gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
 bool gPreserveSysconf = DEFAULT_PRESERVE_SYSCONF_VALUE;
 bool gPermanentNetConfig = DEFAULT_PERMANENT_NET_CONFIG_VALUE;
 
+// SYSCONF
+int32_t gSysconfLanguage = DEFAULT_SYSCONF_LANGUAGE_VALUE;
+int32_t gSysconfEula = DEFAULT_SYSCONF_EULA_VALUE;
+
 bool gInWiiUMenu = false;

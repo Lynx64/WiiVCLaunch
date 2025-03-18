@@ -36,6 +36,26 @@ enum NotificationTheme {
     NOTIFICATION_THEME_LIGHT,
 };
 
+enum SysconfLanguage {
+    SYSCONF_LANGUAGE_JAPANESE = 0,
+    SYSCONF_LANGUAGE_ENGLISH,
+    SYSCONF_LANGUAGE_GERMAN,
+    SYSCONF_LANGUAGE_FRENCH,
+    SYSCONF_LANGUAGE_SPANISH,
+    SYSCONF_LANGUAGE_ITALIAN,
+    SYSCONF_LANGUAGE_DUTCH,
+    SYSCONF_LANGUAGE_SIMPLIFIED_CHINESE,
+    SYSCONF_LANGUAGE_TRADITIONAL_CHINESE,
+    SYSCONF_LANGUAGE_KOREAN,
+    SYSCONF_LANGUAGE_NO_OVERRIDE = 0xFFFF,
+};
+
+enum SysconfEula {
+    SYSCONF_EULA_FALSE = 0,
+    SYSCONF_EULA_TRUE,
+    SYSCONF_EULA_NO_OVERRIDE = 0xFFFF,
+};
+
 #define SET_RESOLUTION_4_3_MODIFIER 100
 
 // Wii VC
@@ -55,5 +75,9 @@ extern int32_t gForwarderDisplayOverride;
 extern int32_t gNotificationTheme;
 extern bool gPreserveSysconf;
 extern bool gPermanentNetConfig;
+
+// SYSCONF
+extern int32_t gSysconfLanguage;
+extern int32_t gSysconfEula;
 
 extern bool gInWiiUMenu;
