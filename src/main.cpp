@@ -5,17 +5,22 @@
 #include "mocha.h"
 #include "notifications.h"
 #include "sysconf_preserver.h"
+
 #include <avm/tv.h>
 #include <coreinit/dynload.h>
 #include <coreinit/mcp.h>
+#include <coreinit/memorymap.h>
 #include <coreinit/thread.h>
 #include <coreinit/title.h>
 #include <nn/acp/title.h>
 #include <nn/cmpt/cmpt.h>
 #include <nn/erreula.h>
-#include <notifications/notifications.h>
 #include <proc_ui/procui.h>
+
 #include <wups.h>
+
+#include <function_patcher/function_patching.h>
+#include <notifications/notifications.h>
 
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");
@@ -32,11 +37,13 @@ INITIALIZE_PLUGIN()
     initConfig();
     initNotifications();
     restoreSysconfIfNeeded();
+    FunctionPatcher_InitLibrary();
 }
 
 DEINITIALIZE_PLUGIN()
 {
     NotificationModule_DeInitLibrary();
+    FunctionPatcher_DeInitLibrary();
 }
 
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
@@ -215,6 +222,73 @@ static void setDisplay(int32_t displayOption)
         CMPTAcctSetScreenType(CMPT_SCREEN_TYPE_DRC);
 }
 
+// used with lib Function Patcher
+DECL_FUNCTION(int32_t, nn_cmpt_FUN_02002A88, uint32_t mcpHandle, uint32_t outputType, uint32_t wants576i, uint32_t param4, uint32_t param5)
+{
+    DEBUG_FUNCTION_LINE("Function replacement called");
+    wants576i = 0;
+    return real_nn_cmpt_FUN_02002A88(mcpHandle, outputType, wants576i, param4, param5);
+}
+
+static PatchedFunctionHandle sPatchedFunctionHandle1 = 0;
+
+static PatchedFunctionHandle addFunctionPatch_nn_cmpt_FUN_02002A88(uint32_t address)
+{
+    uint32_t physicalAddress = OSEffectiveToPhysical(address);
+    DEBUG_FUNCTION_LINE_INFO("effective %08X, physical %08X", address, physicalAddress);
+
+    PatchedFunctionHandle patchedFunctionHandle = 0;
+    function_replacement_data_t patchData REPLACE_FUNCTION_VIA_ADDRESS_FOR_PROCESS(nn_cmpt_FUN_02002A88, physicalAddress, address, FP_TARGET_PROCESS_GAME_AND_MENU);
+    FunctionPatcherStatus result = FunctionPatcher_AddFunctionPatch(&patchData, &patchedFunctionHandle, nullptr);
+
+    if (result != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", result);
+        return 0;
+    }
+
+    return patchedFunctionHandle;
+}
+
+static void setupPatches_nn_cmpt()
+{
+    OSDynLoad_Module cmptModule = nullptr;
+    if ((OSDynLoad_IsModuleLoaded("nn_cmpt", &cmptModule) != OS_DYNLOAD_OK) || !cmptModule) {
+        DEBUG_FUNCTION_LINE("nn_cmpt not loaded");
+        return;
+    }
+
+    uint32_t targetFunctionAddress = 0;
+    // the closest function symbol before the function we want to patch (.text + 2548h)
+    if (OSDynLoad_FindExport(cmptModule, OS_DYNLOAD_EXPORT_FUNC, "CMPTAcctClearInternalState", (void **) &targetFunctionAddress) != OS_DYNLOAD_OK ||
+        targetFunctionAddress == 0) {
+        DEBUG_FUNCTION_LINE_ERR("Failed to find export");
+        return;
+    }
+
+    // shortcut to get target address
+    // .text + 2548h -> .text + 2A88h
+    targetFunctionAddress += 0x2A88 - 0x2548;
+    sPatchedFunctionHandle1 = addFunctionPatch_nn_cmpt_FUN_02002A88(targetFunctionAddress);
+}
+
+void newRplLoaded(OSDynLoad_Module module, void *userContext, OSDynLoad_NotifyReason notifyReason, OSDynLoad_NotifyData *rpl)
+{
+    if (!rpl->name || !std::string_view(rpl->name).ends_with("nn_cmpt.rpl")) {
+        return;
+    }
+    if (notifyReason == OS_DYNLOAD_NOTIFY_LOADED) {
+        sPatchedFunctionHandle1 = addFunctionPatch_nn_cmpt_FUN_02002A88(rpl->textAddr + 0x2A88);
+    } else { // unloaded
+        if (sPatchedFunctionHandle1 != 0) {
+            FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle1);
+            if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+                DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+            }
+            sPatchedFunctionHandle1 = 0;
+        }
+    }
+}
+
 ON_APPLICATION_START()
 {
 #ifdef DEBUG
@@ -228,6 +302,10 @@ ON_APPLICATION_START()
     } else {
         gInWiiUMenu = false;
     }
+
+    setupPatches_nn_cmpt();
+
+    OSDynLoad_AddNotifyCallback(&newRplLoaded, nullptr);
 }
 
 //patch the app type of Wii games to a Wii U game on the Wii U Menu. This avoids the built in Wii dialogs
@@ -600,6 +678,17 @@ DECL_FUNCTION(int32_t, WPADProbe, WPADChan chan, WPADExtensionType *outExtension
 ON_APPLICATION_REQUESTS_EXIT()
 {
     sInputRedirectionActive = false;
+}
+
+ON_APPLICATION_ENDS()
+{
+    if (sPatchedFunctionHandle1 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle1);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle1 = 0;
+    }
 #ifdef DEBUG
     deinitLogging();
 #endif
