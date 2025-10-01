@@ -225,7 +225,6 @@ static void setDisplay(int32_t displayOption)
 // used with lib Function Patcher
 DECL_FUNCTION(int32_t, nn_cmpt_FUN_02002A88, int32_t mcpHandle, uint32_t outputType, int32_t wants576i, uint32_t param4, uint32_t param5)
 {
-    DEBUG_FUNCTION_LINE("Function replacement called");
     wants576i = 0;
     return real_nn_cmpt_FUN_02002A88(mcpHandle, outputType, wants576i, param4, param5);
 }
