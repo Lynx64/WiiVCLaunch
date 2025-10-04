@@ -1,4 +1,4 @@
 #pragma once
 
-#define VERSION     "1.4-componentpatch"
+#define VERSION     "1.4"
 #define DESCRIPTION "For launching Wii VC titles"
