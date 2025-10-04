@@ -46,6 +46,7 @@ For building you need:
 - [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [libnotifications](https://github.com/wiiu-env/libnotifications)
 - [libmocha](https://github.com/wiiu-env/libmocha)
+- [libfunctionpatcher](https://github.com/wiiu-env/libfunctionpatcher)
 
 then run `make`
 
