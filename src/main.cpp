@@ -22,6 +22,8 @@
 #include <function_patcher/function_patching.h>
 #include <notifications/notifications.h>
 
+using namespace std::literals;
+
 // Mandatory plugin info
 WUPS_PLUGIN_NAME("Wii VC Launch");
 WUPS_PLUGIN_DESCRIPTION(DESCRIPTION);
@@ -272,7 +274,7 @@ static void setupPatches_nn_cmpt()
 
 void newRplLoaded(OSDynLoad_Module module, void *userContext, OSDynLoad_NotifyReason notifyReason, OSDynLoad_NotifyData *rpl)
 {
-    if (!rpl->name || !std::string_view(rpl->name).ends_with("nn_cmpt.rpl")) {
+    if (!rpl->name || !std::string_view(rpl->name).ends_with("nn_cmpt.rpl"sv)) {
         return;
     }
     if (notifyReason == OS_DYNLOAD_NOTIFY_LOADED) {
