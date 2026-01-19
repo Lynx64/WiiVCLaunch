@@ -632,6 +632,16 @@ DECL_FUNCTION(int32_t, CMPTExPrepareLaunch, uint32_t unk1, void *unk2, uint32_t 
     return result;
 }
 
+static void patchSysconf(uint8_t *confBuffer)
+{
+    // conf.bin starts at offset 0x80
+    if (gSysconfLanguage != SYSCONF_LANGUAGE_NO_OVERRIDE)
+        *(confBuffer + 0xA2) = gSysconfLanguage; //language
+    //*(confBuffer + 0x9D) = 1; //country
+    if (gSysconfEula != SYSCONF_EULA_NO_OVERRIDE)
+        *(confBuffer + 0xA4) = gSysconfEula; //eula
+}
+
 DECL_FUNCTION(int32_t, CMPTLaunchMenu, void *dataBuffer, uint32_t bufferSize)
 {
     setResolution(gWiiMenuSetResolution);
@@ -646,10 +656,13 @@ DECL_FUNCTION(int32_t, CMPTLaunchDataManager, void *dataBuffer, uint32_t bufferS
     return real_CMPTLaunchDataManager(dataBuffer, bufferSize);
 }
 
-DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, void *confBuffer, uint32_t confBufferSize, void *imgsBuffer, uint32_t imgsBufferSize)
+DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, uint8_t *confBuffer, uint32_t confBufferSize, void *imgsBuffer, uint32_t imgsBufferSize)
 {
     if (gPermanentNetConfig)
         patchNetConfigOverwrite();
+    
+    patchSysconf(confBuffer);
+
     return real_MCP_LaunchCompat(handle, confBuffer, confBufferSize, imgsBuffer, imgsBufferSize);
 }
 
