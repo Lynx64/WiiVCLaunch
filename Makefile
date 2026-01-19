@@ -51,11 +51,14 @@ endif
 
 LIBS	:= -lfunctionpatcher -lmocha -lnotifications -lwups -lwut
 
+# Use the libmocha submodule.
+EXTERNAL_LIBMOCHA_DIR := $(TOPDIR)/external/libmocha
+
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT) $(WUT_ROOT)/usr
+LIBDIRS	:= $(EXTERNAL_LIBMOCHA_DIR) $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT) $(WUT_ROOT)/usr
 
 #-------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -108,6 +111,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 all: $(BUILD)
 
 $(BUILD):
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR)
 	@$(shell [ ! -d $(BUILD) ] && mkdir -p $(BUILD))
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
@@ -115,6 +119,7 @@ $(BUILD):
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).wps $(TARGET).elf
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR) clean
 
 #-------------------------------------------------------------------------------
 else
