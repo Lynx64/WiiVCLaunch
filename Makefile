@@ -58,7 +58,7 @@ EXTERNAL_LIBMOCHA_DIR := $(TOPDIR)/external/libmocha
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(EXTERNAL_LIBMOCHA_DIR) $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT) $(WUT_ROOT)/usr
+LIBDIRS	:= $(EXTERNAL_LIBMOCHA_DIR) $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT)
 
 #-------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
