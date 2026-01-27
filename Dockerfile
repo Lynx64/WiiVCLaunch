@@ -1,5 +1,5 @@
 # FROM ghcr.io/wiiu-env/devkitppc:20241128
-FROM devkitpro/devkitppc
+FROM devkitpro/devkitppc:20260117
 
 COPY --from=ghcr.io/wiiu-env/wiiupluginsystem:20250608 /artifacts $DEVKITPRO
 COPY --from=ghcr.io/wiiu-env/libnotifications:20250204 /artifacts $DEVKITPRO

@@ -54,7 +54,7 @@ then run `make`
 It's possible to use a docker image for building. This way you don't need anything installed on your host system other than Docker.
 
 ```
-# Build docker image (only needed once)
+# Build docker image (only needed once or if the Dockerfile changes)
 docker build . -t wiivclaunch-builder
 
 # make
