@@ -41,17 +41,25 @@ If custom dialogs are disabled:
 "Preserve SYSCONF on Wii VC title launch" and "Permanent Wii Internet Settings" (Disables Wii Internet Connection Settings overwrite) are useful in combination with [Priiloader](https://github.com/DacoTaco/priiloader) or Wii homebrew that can change the Internet Connection settings. If you don't have Priiloader installed you don't need to worry about them and can leave them both on `false`.
 
 ## Building
+Remember to add `--recurse-submodules` to your clone command to get the submodules.
+If you have already cloned the project you can run `git submodule update --init --recursive`.
+
 For building you need:
 - [wut](https://github.com/devkitPro/wut)
 - [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [libnotifications](https://github.com/wiiu-env/libnotifications)
-- [libmocha](https://github.com/wiiu-env/libmocha)
 - [libfunctionpatcher](https://github.com/wiiu-env/libfunctionpatcher)
+- ~~[libmocha](https://github.com/wiiu-env/libmocha)~~ *(available as a submodule, usage recommended)*
+
+It is recommended to use the `libmocha` git submodule included in this repository.
 
 then run `make`
 
 ## Building using the Dockerfile
 It's possible to use a docker image for building. This way you don't need anything installed on your host system other than Docker.
+
+Remember to add `--recurse-submodules` to your clone command to get the submodules.
+If you have already cloned the project you can run `git submodule update --init --recursive`.
 
 ```
 # Build docker image (only needed once or if the Dockerfile changes)
