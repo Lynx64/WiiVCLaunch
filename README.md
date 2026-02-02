@@ -4,13 +4,13 @@
 Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 
 ## Features
-### Custom dialogs
+### Custom dialogs <sub>*(applies to Wii VC only)*</sub>
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
 - Autolaunch into a specific display option bypassing all dialogs
   - Keep A pressed when launching a game to force open the Select a display option dialogs
   - Falls back to the GamePad screen if TV not connected
 
-### Original built in dialogs
+### Original built in dialogs <sub>*(applies to Wii Mode & Wii VC)*</sub>
 - Enables the GamePad sensor bar for built in dialogs
 - Allow using a Pro Controller to Select a display option in the built in dialogs
 
