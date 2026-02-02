@@ -1,3 +1,5 @@
+[![GitHub release](https://img.shields.io/github/release/Lynx64/WiiVCLaunch.svg?label=Download)](https://github.com/Lynx64/WiiVCLaunch/releases/latest)   
+
 # Wii VC Launch
 Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 
