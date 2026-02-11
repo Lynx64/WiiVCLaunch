@@ -54,6 +54,12 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
     } else if (std::string_view(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID) == item->identifier) {
         gForwarderDisplayOverride = newValue;
         WUPSStorageAPI::Store(item->identifier, gForwarderDisplayOverride);
+    } else if (std::string_view(SYSCONF_LANGUAGE_CONFIG_ID) == item->identifier) {
+        gSysconfLanguage = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSysconfLanguage);
+    } else if (std::string_view(SYSCONF_EULA_CONFIG_ID) == item->identifier) {
+        gSysconfEula = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSysconfEula);
     }
 }
 
@@ -215,6 +221,44 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                         gPermanentNetConfig,
                                                         &boolItemCallback));
 
+        // Sub Category: Force SYSCONF flags
+        auto forceSysconfFlags = WUPSConfigCategory::Create("Force SYSCONF flags");
+
+        // Language
+        constexpr WUPSConfigItemMultipleValues::ValuePair sysconfLanguageValues[] = {
+                {SYSCONF_LANGUAGE_NO_OVERRIDE,         "-"},
+                {SYSCONF_LANGUAGE_JAPANESE,            "Japanese"},
+                {SYSCONF_LANGUAGE_ENGLISH,             "English"},
+                {SYSCONF_LANGUAGE_GERMAN,              "German"},
+                {SYSCONF_LANGUAGE_FRENCH,              "French"},
+                {SYSCONF_LANGUAGE_SPANISH,             "Spanish"},
+                {SYSCONF_LANGUAGE_ITALIAN,             "Italian"},
+                {SYSCONF_LANGUAGE_DUTCH,               "Dutch"},
+                {SYSCONF_LANGUAGE_SIMPLIFIED_CHINESE,  "Chinese (Simplified)"},
+                {SYSCONF_LANGUAGE_TRADITIONAL_CHINESE, "Chinese (Traditional)"},
+                {SYSCONF_LANGUAGE_KOREAN,              "Korean"}};
+
+        forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_LANGUAGE_CONFIG_ID,
+                                                                            "Language",
+                                                                            DEFAULT_SYSCONF_LANGUAGE_VALUE,
+                                                                            gSysconfLanguage,
+                                                                            sysconfLanguageValues,
+                                                                            &multipleValueItemCallback));
+
+        // EULA
+        constexpr WUPSConfigItemMultipleValues::ValuePair sysconfEulaValues[] = {
+                {SYSCONF_EULA_NO_OVERRIDE, "-"},
+                {SYSCONF_EULA_FALSE,       "FALSE"},
+                {SYSCONF_EULA_TRUE,        "TRUE"}};
+
+        forceSysconfFlags.add(WUPSConfigItemMultipleValues::CreateFromValue(SYSCONF_EULA_CONFIG_ID,
+                                                                            "EULA",
+                                                                            DEFAULT_SYSCONF_EULA_VALUE,
+                                                                            gSysconfEula,
+                                                                            sysconfEulaValues,
+                                                                            &multipleValueItemCallback));
+
+        otherSettings.add(std::move(forceSysconfFlags)); // End of Sub Category: Force SYSCONF flags
         root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
         DEBUG_FUNCTION_LINE_ERR("Exception: %s", e.what());
@@ -257,4 +301,8 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
 
     WUPSStorageAPI::GetOrStoreDefault(PERMANENT_NET_CONFIG_CONFIG_ID, gPermanentNetConfig, DEFAULT_PERMANENT_NET_CONFIG_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(SYSCONF_LANGUAGE_CONFIG_ID, gSysconfLanguage, DEFAULT_SYSCONF_LANGUAGE_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault<int32_t>(SYSCONF_EULA_CONFIG_ID, gSysconfEula, DEFAULT_SYSCONF_EULA_VALUE);
 }
