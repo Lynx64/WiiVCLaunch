@@ -63,7 +63,7 @@ static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
 static bool sUserCancelledCustomDialogs = false;
 
-//remap buttons functions copied from https://github.com/wiiu-env/WiiUPluginLoaderBackend/blob/cb527add76c95bff3fb1ddef7a016fec3db4c497/source/utils/ConfigUtils.cpp#LL35C7-L35C7
+// remap buttons functions copied from https://github.com/wiiu-env/WiiUPluginLoaderBackend/blob/cb527add76c95bff3fb1ddef7a016fec3db4c497/source/utils/ConfigUtils.cpp#LL35C7-L35C7
 static uint32_t remapWiiMoteButtons(uint32_t buttons)
 {
     uint32_t convButtons = 0;
@@ -148,7 +148,8 @@ static uint32_t remapClassicButtons(uint32_t buttons)
         convButtons |= VPAD_BUTTON_L;
 
     return convButtons;
-} //end of copied functions
+}
+// end of copied functions
 
 static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
 {
