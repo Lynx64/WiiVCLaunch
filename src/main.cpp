@@ -1,6 +1,7 @@
 #include "main.h"
 #include "config.h"
 #include "globals.hpp"
+#include "lang.h"
 #include "logger.h"
 #include "mocha.h"
 #include "notifications.h"
@@ -157,13 +158,13 @@ static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
     switch (displayOption)
     {
     case DISPLAY_OPTION_USE_DRC:
-        return "Use GamePad as controller";
+        return getTranslatedStrings().use_gamepad_as_controller;
     case DISPLAY_OPTION_TV:
-        return "TV Only";
+        return getTranslatedStrings().tv_only.data();
     case DISPLAY_OPTION_BOTH:
-        return "TV and GamePad";
+        return getTranslatedStrings().tv_and_gamepad;
     case DISPLAY_OPTION_DRC:
-        return "GamePad screen only";
+        return getTranslatedStrings().gamepad_screen_only;
     default:
         return "";
     }
@@ -174,13 +175,13 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
     switch (displayOption)
     {
     case DISPLAY_OPTION_USE_DRC:
-        return u"Use \uE087 as controller";
+        return getTranslatedStrings().use_drc_as_controller2;
     case DISPLAY_OPTION_TV:
-        return u"TV Only";
+        return getTranslatedStrings().tv_only2;
     case DISPLAY_OPTION_BOTH:
-        return u"TV and \uE087";
+        return getTranslatedStrings().tv_and_drc2;
     case DISPLAY_OPTION_DRC:
-        return u"\uE087 screen only";
+        return getTranslatedStrings().drc_screen_only2;
     default:
         return u"";
     }
@@ -189,7 +190,7 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
 static void showAutolaunchNotification(int32_t displayOption)
 {
     char text[41];
-    snprintf(text, sizeof(text), "Autolaunching: %s", displayOptionToStringWithoutIcons(displayOption));
+    snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
     NotificationModule_AddInfoNotification(text);
 }
 
@@ -491,9 +492,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             }
             appearArg.errorArg.button1Label = displayOptionToString16(position[0]);
             if (tvConnected) {
-                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\uE07D More options";
+                appearArg.errorArg.errorMessage = getTranslatedStrings().select_a_display_option_more_options;
             } else {
-                appearArg.errorArg.errorMessage = u"\n\nSelect a display option.\n\n\n\uE07D Detect TV";
+                appearArg.errorArg.errorMessage = getTranslatedStrings().select_a_display_option_detect_tv;
             }
             dyn_ErrEulaAppearError(appearArg);
             continue;
@@ -661,7 +662,7 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
         VPADBASEGetSensorBarSetting(VPAD_CHAN_0, &sensorBarEnabled);
         if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
             if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                NotificationModule_AddInfoNotification("GamePad sensor bar enabled");
+                NotificationModule_AddInfoNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
         }
         sInputRedirectionActive = true;
     }

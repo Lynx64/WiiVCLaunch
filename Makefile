@@ -22,9 +22,9 @@ WUMS_ROOT := $(DEVKITPRO)/wums
 #-------------------------------------------------------------------------------
 TARGET		:=	WiiVCLaunch
 BUILD		:=	build
-SOURCES		:=	src
+SOURCES		:=	src src/lang
 DATA		:=	data
-INCLUDES	:=	src
+INCLUDES	:=	src src/lang
 
 #-------------------------------------------------------------------------------
 # options for code generation

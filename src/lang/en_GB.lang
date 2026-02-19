@@ -1,0 +1,44 @@
+.use_gamepad_as_controller = "Use GamePad as controller"
+,.tv_and_gamepad = "TV and GamePad"
+,.gamepad_screen_only = "GamePad screen only"
+,.use_drc_as_controller2 = u"Use \uE087 as controller"
+,.tv_only2 = u"TV Only"
+,.tv_and_drc2 = u"TV and \uE087"
+,.drc_screen_only2 = u"\uE087 screen only"
+,.autolaunching = "Autolaunching: %s"
+,.select_a_display_option_more_options = u"\n\nSelect a display option.\n\n\n\uE07D More options"
+,.select_a_display_option_detect_tv = u"\n\nSelect a display option.\n\n\n\uE07D Detect TV"
+,.gamepad_sensor_bar_enabled = "GamePad sensor bar enabled"
+
+,.wii_vc_settings = "Wii VC settings"
+,.wii_mode_settings = "Wii Mode settings"
+,.wuhb_forwarder_settings = "WUHB Forwarder settings"
+,.other_settings = "Other settings"
+
+,.autolaunch_drc_supported = "Autolaunch (\uE087 supported)"
+,.autolaunch_drc_not_supported = "Autolaunch (\uE087 not supported)"
+,.set_resolution = "Set resolution"
+,.display_options_order = "Display options order"
+,.use_custom_dialogs = "Use custom dialogs (Wii U Menu needs to be restarted)"
+,.override_autolaunch = "\uE06B Override Autolaunch by holding \uE000 when launching"
+
+,.override_display = "Override display"
+
+,.notification_theme = "Notification theme"
+,.preserve_sysconf = "Preserve SYSCONF on Wii VC title launch"
+,.permanent_wii_internet_settings = "Permanent Wii Internet Settings"
+
+,.select_each_time = "Select each time"
+,.use_drc_as_controller = "Use \uE087 as controller"
+,.tv_only = "TV Only"
+,.tv_and_drc = "TV and \uE087"
+,.drc_screen_only = "\uE087 screen only"
+
+,.order_default = "Default"
+,.order_recent = "Recent"
+
+,.do_not_override = "Don't override"
+
+,.theme_off = "Off"
+,.theme_dark = "Dark"
+,.theme_light = "Light"
