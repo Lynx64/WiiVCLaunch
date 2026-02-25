@@ -1,0 +1,44 @@
+.select_a_display_option_more_options = u"\n\nSeleccione una opcion de Pantalla.\n\n\n\uE07D Mas opciones"
+,.select_a_display_option_detect_tv = u"\n\nSeleccione una opcion de Pantalla.\n\n\n\uE07D Detectar TV"
+,.use_drc_as_controller2 = u"Usar \uE087 como control"
+,.tv_only2 = u"Solo TV"
+,.tv_and_drc2 = u"TV y \uE087"
+,.drc_screen_only2 = u"Solo Pantalla de \uE087"
+,.autolaunching = "Auto Iniciar: %s"
+,.use_gamepad_as_controller = "Usar GamePad como control"
+,.tv_only = "Solo TV"
+,.tv_and_gamepad = "TV y GamePad"
+,.gamepad_screen_only = "Solo Pantalla de GamePad"
+,.gamepad_sensor_bar_enabled = "Barra de sensor de GamePad habilitada"
+
+,.wii_vc_settings = "Opciones de Wii VC"
+,.wii_mode_settings = "Opciones del modo Wii"
+,.wuhb_forwarder_settings = "Opciones del reenvio del WUHB"
+,.other_settings = "Otras opciones"
+
+,.autolaunch_drc_supported = "Auto iniciar (\uE087 compatible)"
+,.autolaunch_drc_not_supported = "Auto iniciar (\uE087 no compatible)"
+,.set_resolution = "Establecer resolucion"
+,.display_options_order = "Orden de opciones de Pantalla"
+,.use_custom_dialogs = "Usar dialogos personalizados (el menu Wii U debe reiniciarse)"
+,.override_autolaunch = "\uE06B Anular auto iniciar al mantener \uE000 al iniciar"
+
+,.override_display = "Anulacion de la Pantalla"
+
+,.notification_theme = "Tema de notificacion"
+,.preserve_sysconf = "Preservar SYSCONF al iniciar un titulo de Wii VC"
+,.permanent_wii_internet_settings = "Opcion permanente de Internet Wii"
+
+,.select_each_time = "Seleccione cada vez"
+,.use_drc_as_controller = "Usar \uE087 como control"
+,.tv_and_drc = "TV y \uE087"
+,.drc_screen_only = "Solo Pantalla de \uE087"
+
+,.order_default = "Por defecto"
+,.order_recent = "Reciente"
+
+,.do_not_override = "No anular"
+
+,.theme_off = "Apagado"
+,.theme_dark = "Oscuro"
+,.theme_light = "Claro"
