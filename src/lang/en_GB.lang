@@ -1,13 +1,14 @@
-.use_gamepad_as_controller = "Use GamePad as controller"
-,.tv_and_gamepad = "TV and GamePad"
-,.gamepad_screen_only = "GamePad screen only"
+.select_a_display_option_more_options = u"\n\nSelect a display option.\n\n\n\uE07D More options"
+,.select_a_display_option_detect_tv = u"\n\nSelect a display option.\n\n\n\uE07D Detect TV"
 ,.use_drc_as_controller2 = u"Use \uE087 as controller"
 ,.tv_only2 = u"TV Only"
 ,.tv_and_drc2 = u"TV and \uE087"
 ,.drc_screen_only2 = u"\uE087 screen only"
 ,.autolaunching = "Autolaunching: %s"
-,.select_a_display_option_more_options = u"\n\nSelect a display option.\n\n\n\uE07D More options"
-,.select_a_display_option_detect_tv = u"\n\nSelect a display option.\n\n\n\uE07D Detect TV"
+,.use_gamepad_as_controller = "Use GamePad as controller"
+,.tv_only = "TV Only"
+,.tv_and_gamepad = "TV and GamePad"
+,.gamepad_screen_only = "GamePad screen only"
 ,.gamepad_sensor_bar_enabled = "GamePad sensor bar enabled"
 
 ,.wii_vc_settings = "Wii VC settings"
@@ -30,7 +31,6 @@
 
 ,.select_each_time = "Select each time"
 ,.use_drc_as_controller = "Use \uE087 as controller"
-,.tv_only = "TV Only"
 ,.tv_and_drc = "TV and \uE087"
 ,.drc_screen_only = "\uE087 screen only"
 

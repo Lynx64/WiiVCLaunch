@@ -20,16 +20,17 @@ enum Language {
 };
 
 struct TranslatedStrings {
-    const char *     use_gamepad_as_controller;
-    const char *     tv_and_gamepad;
-    const char *     gamepad_screen_only;
+    const char16_t * select_a_display_option_more_options;
+    const char16_t * select_a_display_option_detect_tv;
     const char16_t * use_drc_as_controller2;
     const char16_t * tv_only2;
     const char16_t * tv_and_drc2;
     const char16_t * drc_screen_only2;
     const char *     autolaunching;
-    const char16_t * select_a_display_option_more_options;
-    const char16_t * select_a_display_option_detect_tv;
+    const char *     use_gamepad_as_controller;
+    std::string_view tv_only;
+    const char *     tv_and_gamepad;
+    const char *     gamepad_screen_only;
     const char *     gamepad_sensor_bar_enabled;
 
     std::string_view wii_vc_settings;
@@ -52,7 +53,6 @@ struct TranslatedStrings {
 
     std::string_view select_each_time;
     std::string_view use_drc_as_controller;
-    std::string_view tv_only;
     std::string_view tv_and_drc;
     std::string_view drc_screen_only;
 
