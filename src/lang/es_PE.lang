@@ -34,6 +34,17 @@
 ,.tv_and_drc = "TV y \uE087"
 ,.drc_screen_only = "Solo Pantalla de \uE087"
 
+,.same_as_wii_u = "Igual que la Wii U"
+,.p480 = "480p"
+,.p480_43 = "480p 4:3"
+,.p720 = "720p"
+,.i480 = "480i (no-HDMI solo)"
+,.i480_43 = "480i 4:3 (no-HDMI solo)"
+,.i576 = "576i (no-HDMI, solo PAL)"
+,.i576_43 = "576i 4:3 (no-HDMI, solo PAL)"
+,.i1080 = "1080i"
+,.p1080 = "1080p"
+
 ,.order_default = "Por defecto"
 ,.order_recent = "Reciente"
 

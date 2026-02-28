@@ -109,17 +109,17 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                    &multipleValueItemCallback));
 
         // Set resolution
-        constexpr WUPSConfigItemMultipleValues::ValuePair setResolutionValues[] = {
-                {SET_RESOLUTION_NONE,    "Same as Wii U"},
-                {SET_RESOLUTION_480P,    "480p"},
-                {SET_RESOLUTION_480P_43, "480p 4:3"},
-                {SET_RESOLUTION_720P,    "720p"},
-                {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
-                {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
-                {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_1080I,   "1080i"},
-                {SET_RESOLUTION_1080P,   "1080p"}};
+        const WUPSConfigItemMultipleValues::ValuePair setResolutionValues[] = {
+                {SET_RESOLUTION_NONE,    strings.same_as_wii_u},
+                {SET_RESOLUTION_480P,    strings.p480},
+                {SET_RESOLUTION_480P_43, strings.p480_43},
+                {SET_RESOLUTION_720P,    strings.p720},
+                {SET_RESOLUTION_480I,    strings.i480},
+                {SET_RESOLUTION_480I_43, strings.i480_43},
+                {SET_RESOLUTION_576I,    strings.i576},
+                {SET_RESOLUTION_576I_43, strings.i576_43},
+                {SET_RESOLUTION_1080I,   strings.i1080},
+                {SET_RESOLUTION_1080P,   strings.p1080}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(SET_RESOLUTION_CONFIG_ID,
                                                                    strings.set_resolution,
@@ -159,23 +159,11 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         auto wiiMenuSettings = WUPSConfigCategory::Create(strings.wii_mode_settings);
 
         // Wii Mode set resolution
-        constexpr WUPSConfigItemMultipleValues::ValuePair wiiMenuSetResolutionValues[] = {
-                {SET_RESOLUTION_NONE,    "Same as Wii U"},
-                {SET_RESOLUTION_480P,    "480p"},
-                {SET_RESOLUTION_480P_43, "480p 4:3"},
-                {SET_RESOLUTION_720P,    "720p"},
-                {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
-                {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
-                {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_1080I,   "1080i"},
-                {SET_RESOLUTION_1080P,   "1080p"}};
-
         wiiMenuSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(WII_MENU_SET_RESOLUTION_CONFIG_ID,
                                                                           strings.set_resolution,
                                                                           DEFAULT_WII_MENU_SET_RESOLUTION_VALUE,
                                                                           gWiiMenuSetResolution,
-                                                                          wiiMenuSetResolutionValues,
+                                                                          setResolutionValues,
                                                                           &multipleValueItemCallback));
 
         root.add(std::move(wiiMenuSettings));

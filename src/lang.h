@@ -56,6 +56,17 @@ struct TranslatedStrings {
     std::string_view tv_and_drc;
     std::string_view drc_screen_only;
 
+    std::string_view same_as_wii_u;
+    std::string_view p480;
+    std::string_view p480_43;
+    std::string_view p720;
+    std::string_view i480;
+    std::string_view i480_43;
+    std::string_view i576;
+    std::string_view i576_43;
+    std::string_view i1080;
+    std::string_view p1080;
+
     std::string_view order_default;
     std::string_view order_recent;
 
