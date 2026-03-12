@@ -77,5 +77,5 @@ struct TranslatedStrings {
     std::string_view theme_light;
 };
 
-void setLanguage(const Language &newLanguage);
+void setLanguage(Language newLanguage);
 const TranslatedStrings& getTranslatedStrings();

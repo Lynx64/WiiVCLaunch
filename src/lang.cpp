@@ -1,6 +1,7 @@
 #include "lang.h"
 #include "logger.h"
 
+#include <coreinit/mcp.h>
 #include <coreinit/userconfig.h>
 
 #include <optional>
@@ -50,12 +51,45 @@ Language getSystemLanguage() {
     return language;
 }
 
-void setLanguage(const Language &newLanguage) {
-    if (newLanguage == Language::System) {
-        sLanguage = getSystemLanguage();
-    } else {
-        sLanguage = newLanguage;
+MCPRegion getSystemRegion() {
+    static std::optional<MCPRegion> cachedRegion{};
+    if (cachedRegion)
+        return *cachedRegion;
+
+    int32_t handle = MCP_Open();
+    if (handle < 0) {
+        DEBUG_FUNCTION_LINE_ERR("Error opening MCP: %d", handle);
+        return MCPRegion::MCP_REGION_EUROPE;
     }
+
+    alignas(0x40) MCPSysProdSettings settings{};
+    MCPError err = MCP_GetSysProdSettings(handle, &settings);
+    MCP_Close(handle);
+    if (err != 0) {
+        DEBUG_FUNCTION_LINE_ERR("Error GetSysProdSettings: %d", err);
+        return MCPRegion::MCP_REGION_EUROPE;
+    }
+
+    MCPRegion region = settings.product_area;
+    cachedRegion = region;
+    return region;
+}
+
+void setLanguage(Language newLanguage) {
+    if (newLanguage == Language::System) {
+        newLanguage = getSystemLanguage();
+        MCPRegion region = getSystemRegion();
+        switch (newLanguage) {
+            case Language::Spanish:
+                if (region != MCPRegion::MCP_REGION_USA) {
+                    newLanguage = Language::English;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    sLanguage = newLanguage;
 }
 
 const TranslatedStrings& getTranslatedStrings() {
