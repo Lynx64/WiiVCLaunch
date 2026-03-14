@@ -36,4 +36,6 @@
 #define PRESERVE_SYSCONF_CONFIG_ID              "preserveSysconf"
 #define PERMANENT_NET_CONFIG_CONFIG_ID          "permanentNetConfig"
 
+#define LANGUAGE_CONFIG_ID                      "language"
+
 void initConfig();

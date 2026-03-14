@@ -1,14 +1,19 @@
 #include "config.h"
 #include "globals.hpp"
+#include "lang.h"
 #include "logger.h"
 #include "notifications.h"
-#include <string_view>
+
 #include <wups.h>
 #include <wups/config/WUPSConfigItemBoolean.h>
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <wups/config/WUPSConfigItemStub.h>
 
+#include <string_view>
+
 WUPS_USE_STORAGE("WiiVCLaunch");
+
+static Language sLanguageSetting = Language::System;
 
 void boolItemCallback(ConfigItemBoolean *item, bool newValue)
 {
@@ -57,70 +62,79 @@ void multipleValueItemCallback(ConfigItemMultipleValues *item, uint32_t newValue
     }
 }
 
+void languageChangedCallback(ConfigItemMultipleValues *item, uint32_t newValue)
+{
+    sLanguageSetting = static_cast<Language>(newValue);
+    setLanguage(sLanguageSetting);
+    WUPSStorageAPI::Store(LANGUAGE_CONFIG_ID, sLanguageSetting);
+}
+
 WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle rootHandle)
 {
+    const TranslatedStrings strings = getTranslatedStrings();
+
     try {
         WUPSConfigCategory root = WUPSConfigCategory(rootHandle);
 
         // Category: Wii VC settings
-        auto settings = WUPSConfigCategory::Create("Wii VC settings");
+        auto settings = WUPSConfigCategory::Create(strings.wii_vc_settings);
 
         // Autolaunch (GamePad supported)
-        constexpr WUPSConfigItemMultipleValues::ValuePair autolaunchDRCSupportedValues[] = {
-                {DISPLAY_OPTION_CHOOSE,  "Select each time"},
-                {DISPLAY_OPTION_USE_DRC, "Use \ue087 as controller"},
-                {DISPLAY_OPTION_TV,      "TV Only"},
-                {DISPLAY_OPTION_BOTH,    "TV and \ue087"},
-                {DISPLAY_OPTION_DRC,     "\ue087 screen only"}};
+        const WUPSConfigItemMultipleValues::ValuePair autolaunchDRCSupportedValues[] = {
+                {DISPLAY_OPTION_CHOOSE,  strings.select_each_time},
+                {DISPLAY_OPTION_USE_DRC, strings.use_drc_as_controller},
+                {DISPLAY_OPTION_TV,      strings.tv_only},
+                {DISPLAY_OPTION_BOTH,    strings.tv_and_drc},
+                {DISPLAY_OPTION_DRC,     strings.drc_screen_only}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID,
-                                                                   "Autolaunch (\ue087 supported)",
+                                                                   strings.autolaunch_drc_supported,
                                                                    DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE,
                                                                    gAutolaunchDRCSupported,
                                                                    autolaunchDRCSupportedValues,
                                                                    &multipleValueItemCallback));
 
         // Autolaunch (GamePad not supported)
-        constexpr WUPSConfigItemMultipleValues::ValuePair autolaunchNoDRCSupportValues[] = {
-                {DISPLAY_OPTION_CHOOSE, "Select each time"},
-                {DISPLAY_OPTION_TV,     "TV Only"},
-                {DISPLAY_OPTION_BOTH,   "TV and \ue087"},
-                {DISPLAY_OPTION_DRC,    "\ue087 screen only"}};
+        const WUPSConfigItemMultipleValues::ValuePair autolaunchNoDRCSupportValues[] = {
+                {DISPLAY_OPTION_CHOOSE, strings.select_each_time},
+                {DISPLAY_OPTION_TV,     strings.tv_only},
+                {DISPLAY_OPTION_BOTH,   strings.tv_and_drc},
+                {DISPLAY_OPTION_DRC,    strings.drc_screen_only}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID,
-                                                                   "Autolaunch (\ue087 not supported)",
+                                                                   strings.autolaunch_drc_not_supported,
                                                                    DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE,
                                                                    gAutolaunchNoDRCSupport,
                                                                    autolaunchNoDRCSupportValues,
                                                                    &multipleValueItemCallback));
 
         // Set resolution
-        constexpr WUPSConfigItemMultipleValues::ValuePair setResolutionValues[] = {
-                {SET_RESOLUTION_NONE,    "Same as Wii U"},
-                {SET_RESOLUTION_480P,    "480p"},
-                {SET_RESOLUTION_480P_43, "480p 4:3"},
-                {SET_RESOLUTION_720P,    "720p"},
-                {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
-                {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
-                {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_1080I,   "1080i"},
-                {SET_RESOLUTION_1080P,   "1080p"}};
+        const WUPSConfigItemMultipleValues::ValuePair setResolutionValues[] = {
+                {SET_RESOLUTION_NONE,    strings.same_as_wii_u},
+                {SET_RESOLUTION_480P,    strings.p480},
+                {SET_RESOLUTION_480P_43, strings.p480_43},
+                {SET_RESOLUTION_720P,    strings.p720},
+                {SET_RESOLUTION_480I,    strings.i480},
+                {SET_RESOLUTION_480I_43, strings.i480_43},
+                {SET_RESOLUTION_576I,    strings.i576},
+                {SET_RESOLUTION_576I_43, strings.i576_43},
+                {SET_RESOLUTION_1080I,   strings.i1080},
+                {SET_RESOLUTION_1080P,   strings.p1080}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(SET_RESOLUTION_CONFIG_ID,
-                                                                   "Set resolution",
+                                                                   strings.set_resolution,
                                                                    DEFAULT_SET_RESOLUTION_VALUE,
                                                                    gSetResolution,
                                                                    setResolutionValues,
                                                                    &multipleValueItemCallback));
 
         // Display options order
-        constexpr WUPSConfigItemMultipleValues::ValuePair displayOptionsOrderValues[] = {
-                {DISPLAY_OPTIONS_ORDER_DEFAULT, "Default"},
-                {DISPLAY_OPTIONS_ORDER_RECENT,  "Recent"}};
+        const WUPSConfigItemMultipleValues::ValuePair displayOptionsOrderValues[] = {
+                {DISPLAY_OPTIONS_ORDER_DEFAULT, strings.order_default},
+                {DISPLAY_OPTIONS_ORDER_RECENT,  strings.order_recent}};
 
         settings.add(WUPSConfigItemMultipleValues::CreateFromValue(DISPLAY_OPTIONS_ORDER_CONFIG_ID,
-                                                                   "Display options order",
+                                                                   strings.display_options_order,
                                                                    DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE,
                                                                    gDisplayOptionsOrder,
                                                                    displayOptionsOrderValues,
@@ -128,7 +142,7 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         // Use custom dialogs
         settings.add(WUPSConfigItemBoolean::Create(USE_CUSTOM_DIALOGS_CONFIG_ID,
-                                                   "Use custom dialogs (Wii U Menu needs to be restarted)",
+                                                   strings.use_custom_dialogs,
                                                    DEFAULT_USE_CUSTOM_DIALOGS_VALUE,
                                                    gUseCustomDialogs,
                                                    &boolItemCallback));
@@ -137,47 +151,35 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         settings.add(WUPSConfigItemStub::Create(" "));
 
         // Help text
-        settings.add(WUPSConfigItemStub::Create("\uE06B Override Autolaunch by holding \uE000 when launching"));
+        settings.add(WUPSConfigItemStub::Create(strings.override_autolaunch));
 
         root.add(std::move(settings));
 
         // Category: Wii Mode settings
-        auto wiiMenuSettings = WUPSConfigCategory::Create("Wii Mode settings");
+        auto wiiMenuSettings = WUPSConfigCategory::Create(strings.wii_mode_settings);
 
         // Wii Mode set resolution
-        constexpr WUPSConfigItemMultipleValues::ValuePair wiiMenuSetResolutionValues[] = {
-                {SET_RESOLUTION_NONE,    "Same as Wii U"},
-                {SET_RESOLUTION_480P,    "480p"},
-                {SET_RESOLUTION_480P_43, "480p 4:3"},
-                {SET_RESOLUTION_720P,    "720p"},
-                {SET_RESOLUTION_480I,    "480i (non-HDMI only)"},
-                {SET_RESOLUTION_480I_43, "480i 4:3 (non-HDMI only)"},
-                {SET_RESOLUTION_576I,    "576i (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_576I_43, "576i 4:3 (non-HDMI, PAL only)"},
-                {SET_RESOLUTION_1080I,   "1080i"},
-                {SET_RESOLUTION_1080P,   "1080p"}};
-
         wiiMenuSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(WII_MENU_SET_RESOLUTION_CONFIG_ID,
-                                                                          "Set resolution",
+                                                                          strings.set_resolution,
                                                                           DEFAULT_WII_MENU_SET_RESOLUTION_VALUE,
                                                                           gWiiMenuSetResolution,
-                                                                          wiiMenuSetResolutionValues,
+                                                                          setResolutionValues,
                                                                           &multipleValueItemCallback));
 
         root.add(std::move(wiiMenuSettings));
 
         // Category: WUHB Forwarder settings
-        auto forwarderSettings = WUPSConfigCategory::Create("WUHB Forwarder settings");
+        auto forwarderSettings = WUPSConfigCategory::Create(strings.wuhb_forwarder_settings);
 
         // Override display
-        constexpr WUPSConfigItemMultipleValues::ValuePair forwarderDisplayOverrideValues[] = {
-                {DISPLAY_OPTION_CHOOSE, "Don't override"},
-                {DISPLAY_OPTION_TV,     "TV Only"},
-                {DISPLAY_OPTION_BOTH,   "TV and \uE087"},
-                {DISPLAY_OPTION_DRC,    "\uE087 screen only"}};
+        const WUPSConfigItemMultipleValues::ValuePair forwarderDisplayOverrideValues[] = {
+                {DISPLAY_OPTION_CHOOSE, strings.do_not_override},
+                {DISPLAY_OPTION_TV,     strings.tv_only},
+                {DISPLAY_OPTION_BOTH,   strings.tv_and_drc},
+                {DISPLAY_OPTION_DRC,    strings.drc_screen_only}};
 
         forwarderSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID,
-                                                                            "Override display",
+                                                                            strings.override_display,
                                                                             DEFAULT_FORWARDER_DISPLAY_OVERRIDE,
                                                                             gForwarderDisplayOverride,
                                                                             forwarderDisplayOverrideValues,
@@ -186,16 +188,16 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         root.add(std::move(forwarderSettings));
 
         // Category: Other settings
-        auto otherSettings = WUPSConfigCategory::Create("Other settings");
+        auto otherSettings = WUPSConfigCategory::Create(strings.other_settings);
 
         // Notification theme
-        constexpr WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
-                {NOTIFICATION_THEME_OFF,   "Off"},
-                {NOTIFICATION_THEME_DARK,  "Dark"},
-                {NOTIFICATION_THEME_LIGHT, "Light"}};
+        const WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
+                {NOTIFICATION_THEME_OFF,   strings.theme_off},
+                {NOTIFICATION_THEME_DARK,  strings.theme_dark},
+                {NOTIFICATION_THEME_LIGHT, strings.theme_light}};
 
         otherSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(NOTIFICATION_THEME_CONFIG_ID,
-                                                                        "Notification theme",
+                                                                        strings.notification_theme,
                                                                         DEFAULT_NOTIFICATION_THEME_VALUE,
                                                                         gNotificationTheme,
                                                                         notificationThemeValues,
@@ -203,17 +205,30 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         // Preserve SYSCONF
         otherSettings.add(WUPSConfigItemBoolean::Create(PRESERVE_SYSCONF_CONFIG_ID,
-                                                        "Preserve SYSCONF on Wii VC title launch",
+                                                        strings.preserve_sysconf,
                                                         DEFAULT_PRESERVE_SYSCONF_VALUE,
                                                         gPreserveSysconf,
                                                         &boolItemCallback));
 
         // Permanent Internet Settings
         otherSettings.add(WUPSConfigItemBoolean::Create(PERMANENT_NET_CONFIG_CONFIG_ID,
-                                                        "Permanent Wii Internet Settings",
+                                                        strings.permanent_wii_internet_settings,
                                                         DEFAULT_PERMANENT_NET_CONFIG_VALUE,
                                                         gPermanentNetConfig,
                                                         &boolItemCallback));
+
+        // Language
+        constexpr WUPSConfigItemMultipleValues::ValuePair languageValues[] = {
+                {Language::English, "English"},
+                {Language::Spanish, "Español (South America)"},
+                {Language::System,  "System"}};
+
+        otherSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(LANGUAGE_CONFIG_ID,
+                                                                        "Language", /* intentionally not translated */
+                                                                        Language::System,
+                                                                        sLanguageSetting,
+                                                                        languageValues,
+                                                                        &languageChangedCallback));
 
         root.add(std::move(otherSettings));
     } catch (const std::exception &e) {
@@ -257,4 +272,9 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
 
     WUPSStorageAPI::GetOrStoreDefault(PERMANENT_NET_CONFIG_CONFIG_ID, gPermanentNetConfig, DEFAULT_PERMANENT_NET_CONFIG_VALUE);
+
+    WUPSStorageAPI::GetOrStoreDefault(LANGUAGE_CONFIG_ID, sLanguageSetting, Language::System);
+
+    // Set the language that's currently used
+    setLanguage(sLanguageSetting);
 }

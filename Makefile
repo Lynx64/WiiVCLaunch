@@ -22,14 +22,14 @@ WUMS_ROOT := $(DEVKITPRO)/wums
 #-------------------------------------------------------------------------------
 TARGET		:=	WiiVCLaunch
 BUILD		:=	build
-SOURCES		:=	src
+SOURCES		:=	src src/lang
 DATA		:=	data
-INCLUDES	:=	src
+INCLUDES	:=	src src/lang
 
 #-------------------------------------------------------------------------------
 # options for code generation
 #-------------------------------------------------------------------------------
-CFLAGS	:=	-Wall -O3 -ffunction-sections \
+CFLAGS	:=	-Wall -O2 -ffunction-sections \
 			$(MACHDEP)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -D__WUPS__ 
