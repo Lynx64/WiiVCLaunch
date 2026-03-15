@@ -423,7 +423,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             WUPSStorageAPI::Get("recent1", recent[1]) != WUPS_STORAGE_ERROR_SUCCESS ||
             WUPSStorageAPI::Get("recent2", recent[2]) != WUPS_STORAGE_ERROR_SUCCESS ||
             WUPSStorageAPI::Get("recent3", recent[3]) != WUPS_STORAGE_ERROR_SUCCESS) {
-            
+
             //failed to read values from storage - use default values
             recent[0] = DISPLAY_OPTION_USE_DRC;
             recent[1] = DISPLAY_OPTION_TV;
@@ -452,7 +452,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
         if (dyn_ErrEulaGetStateErrorViewer() != nn::erreula::State::Visible && dyn_ErrEulaGetStateErrorViewer() != nn::erreula::State::Hidden)
             continue;
-        
+
         if (redraw) {
             redraw = false;
 
@@ -465,7 +465,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
                 if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA)
                     tvConnected = false;
             }
-            
+
             for (uint32_t recentI = 0; recentI < 4; recentI++) {
                 if (!DRC_USE && recent[recentI] == DISPLAY_OPTION_USE_DRC)
                     continue;
@@ -548,13 +548,15 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             activateCursor = true;
             onFirstPage = !onFirstPage;
             dyn_ErrEulaDisappearError();
+        } else if (buttonsHeld & VPAD_BUTTON_PLUS) {
+            selectedDisplay = DISPLAY_OPTION_DRC;
+            break;
         } else if (buttonsHeld & VPAD_BUTTON_B) {
             sUserCancelledCustomDialogs = true;
             sLaunchingWiiGame = false;
             break;
         }
-        
-    } //end while
+    } // end while
 
     if (!sUserCancelledCustomDialogs)
         dyn_ErrEulaDisappearError();
