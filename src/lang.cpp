@@ -39,13 +39,12 @@ Language getSystemLanguage() {
     };
 
     UCError err = UCReadSysConfig(handle, 1, &settings);
+    UCClose(handle);
     if (err != UC_ERROR_OK) {
         DEBUG_FUNCTION_LINE_ERR("Error reading UC: %d", err);
-        UCClose(handle);
         return Language::English;
     }
 
-    UCClose(handle);
     DEBUG_FUNCTION_LINE_VERBOSE("System language found: %d", language);
     cachedLanguage = language;
     return language;
