@@ -152,6 +152,31 @@ static uint32_t remapClassicButtons(uint32_t buttons)
 }
 // end of copied functions
 
+// Reads input from both VPAD (GamePad) and KPAD (Wii Remotes), remapping button presses to a unified format and combining them into a single bitmask.
+uint32_t readCombinedInput(VPADStatus &vpadStatus, VPADReadError &vpadError, KPADStatus kpadStatus[4], KPADError kpadError[4])
+{
+    uint32_t buttonsHeld = 0;
+
+    if (VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError) > 0 && vpadError == VPAD_READ_SUCCESS) {
+        buttonsHeld = vpadStatus.hold;
+    }
+
+    for (int32_t chan = 0; chan < 4; chan++) {
+        if (KPADReadEx((KPADChan)chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
+            if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
+                if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK ||
+                    kpadStatus[chan].extensionType == WPAD_EXT_MPLUS || kpadStatus[chan].extensionType == WPAD_EXT_MPLUS_NUNCHUK) {
+                    buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
+                } else {
+                    buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
+                }
+            }
+        }
+    }
+
+    return buttonsHeld;
+}
+
 static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
 {
     // the GamePad icon doesn't look good on the notification's small font size
@@ -364,25 +389,9 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
     VPADReadError vpadError = VPAD_READ_UNINITIALIZED;
     KPADStatus kpadStatus[4];
     KPADError kpadError[4];
-    uint32_t buttonsHeld = 0;
     bool activateCursor = true;
 
-    if (VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError) > 0 && vpadError == VPAD_READ_SUCCESS) {
-        buttonsHeld = vpadStatus.hold;
-    }
-
-    for (int32_t chan = 0; chan < 4; chan++) {
-        if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
-            if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
-                if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK ||
-                    kpadStatus[chan].extensionType == WPAD_EXT_MPLUS || kpadStatus[chan].extensionType == WPAD_EXT_MPLUS_NUNCHUK) {
-                    buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
-                } else {
-                    buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
-                }
-            }
-        }
-    }
+    uint32_t buttonsHeld = readCombinedInput(vpadStatus, vpadError, kpadStatus, kpadError);
 
     if (!(buttonsHeld & VPAD_BUTTON_A)) {
         //check autolaunch
@@ -509,24 +518,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
             break;
         }
 
-        buttonsHeld = 0;
-
-        if (VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError) > 0 && vpadError == VPAD_READ_SUCCESS) {
-            buttonsHeld = vpadStatus.hold;
-        }
-
-        for (int32_t chan = 0; chan < 4; chan++) {
-            if (KPADReadEx((KPADChan) chan, &kpadStatus[chan], 1, &kpadError[chan]) > 0) {
-                if (kpadError[chan] == KPAD_ERROR_OK && kpadStatus[chan].extensionType != 0xFF) {
-                    if (kpadStatus[chan].extensionType == WPAD_EXT_CORE || kpadStatus[chan].extensionType == WPAD_EXT_NUNCHUK ||
-                        kpadStatus[chan].extensionType == WPAD_EXT_MPLUS || kpadStatus[chan].extensionType == WPAD_EXT_MPLUS_NUNCHUK) {
-                        buttonsHeld |= remapWiiMoteButtons(kpadStatus[chan].hold);
-                    } else {
-                        buttonsHeld |= remapClassicButtons(kpadStatus[chan].classic.hold);
-                    }
-                }
-            }
-        }
+        buttonsHeld = readCombinedInput(vpadStatus, vpadError, kpadStatus, kpadError);
 
         if (activateCursor) {
             //pass a fake input into Calc to activate the select cursor by default when the dialog appears
