@@ -16,7 +16,8 @@ enum Language {
     Russian = 10,
     ChineseTraditional = 11,
     Invalid = 12,
-    System = 13
+    System = 13,
+    SpanishSpain = 14
 };
 
 struct TranslatedStrings {

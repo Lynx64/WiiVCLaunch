@@ -11,6 +11,9 @@ static Language sLanguage = Language::English;
 static constexpr TranslatedStrings es_PE = {
 #include "es_PE.lang"
 };
+static constexpr TranslatedStrings es_ES = {
+#include "es_ES.lang"
+};
 static constexpr TranslatedStrings en_GB = {
 #include "en_GB.lang"
 };
@@ -81,7 +84,7 @@ void setLanguage(Language newLanguage) {
         switch (newLanguage) {
             case Language::Spanish:
                 if (region != MCPRegion::MCP_REGION_USA) {
-                    newLanguage = Language::English;
+                    newLanguage = Language::SpanishSpain;
                 }
                 break;
             default:
@@ -95,6 +98,8 @@ const TranslatedStrings& getTranslatedStrings() {
     switch (sLanguage) {
         case Language::Spanish:
             return es_PE;
+        case Language::SpanishSpain:
+            return es_ES;
         case Language::English:
         default:
             return en_GB;
