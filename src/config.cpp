@@ -220,6 +220,7 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         // Language
         constexpr WUPSConfigItemMultipleValues::ValuePair languageValues[] = {
                 {Language::English,      "English"},
+                {Language::German,       "Deutsch"},
                 {Language::Spanish,      "Español (Perú)"},
                 {Language::SpanishSpain, "Español (España)"},
                 {Language::System,       "System"}};

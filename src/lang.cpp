@@ -8,6 +8,9 @@
 
 static Language sLanguage = Language::English;
 
+static constexpr TranslatedStrings de_DE = {
+#include "de_DE.lang"
+};
 static constexpr TranslatedStrings es_PE = {
 #include "es_PE.lang"
 };
@@ -96,6 +99,8 @@ void setLanguage(Language newLanguage) {
 
 const TranslatedStrings& getTranslatedStrings() {
     switch (sLanguage) {
+        case Language::German:
+            return de_DE;
         case Language::Spanish:
             return es_PE;
         case Language::SpanishSpain:
