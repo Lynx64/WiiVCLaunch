@@ -250,31 +250,85 @@ void initConfig()
     WUPSConfigAPIOptionsV1 configOptions = {.name = "Wii VC Launch"};
     WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback);
 
+    // Load and validate gAutolaunchDRCSupported
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID, gAutolaunchDRCSupported, DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE);
+    if (gAutolaunchDRCSupported < DISPLAY_OPTION_USE_DRC || gAutolaunchDRCSupported >= DISPLAY_OPTION_COUNT) {
+        gAutolaunchDRCSupported = DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE;
+    }
 
+    // Load and validate gAutolaunchNoDRCSupport
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(AUTOLAUNCH_NO_DRC_SUPPORT_CONFIG_ID, gAutolaunchNoDRCSupport, DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE);
+    if (gAutolaunchNoDRCSupport < DISPLAY_OPTION_TV || gAutolaunchNoDRCSupport >= DISPLAY_OPTION_COUNT) {
+        gAutolaunchNoDRCSupport = DEFAULT_AUTOLAUNCH_NO_DRC_SUPPORT_VALUE;
+    }
 
+    // Load and validate gDisplayOptionsOrder
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(DISPLAY_OPTIONS_ORDER_CONFIG_ID, gDisplayOptionsOrder, DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE);
+    if (gDisplayOptionsOrder < DISPLAY_OPTIONS_ORDER_DEFAULT || gDisplayOptionsOrder >= DISPLAY_OPTIONS_ORDER_COUNT) {
+        gDisplayOptionsOrder = DEFAULT_DISPLAY_OPTIONS_ORDER_VALUE;
+    }
 
+    // Load and validate gSetResolution
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(SET_RESOLUTION_CONFIG_ID, gSetResolution, DEFAULT_SET_RESOLUTION_VALUE);
+    constexpr int32_t validResolutions[] = {0, 1, 2, 3, 4, 6, 7, 101, 102, 103};
+    bool resolutionValid = false;
+    for (auto res : validResolutions) {
+        if (gSetResolution == res) {
+            resolutionValid = true;
+            break;
+        }
+    }
+    if (!resolutionValid) {
+        gSetResolution = DEFAULT_SET_RESOLUTION_VALUE;
+        DEBUG_FUNCTION_LINE_ERR("Invalid resolution read from storage. Using default value instead.");
+    }
 
+    // Load and validate gUseCustomDialogs
     WUPSStorageAPI::GetOrStoreDefault(USE_CUSTOM_DIALOGS_CONFIG_ID, gUseCustomDialogs, DEFAULT_USE_CUSTOM_DIALOGS_VALUE);
 
+    // Load and validate gWiiMenuSetResolution
     if (WUPSStorageAPI::Get(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution) == WUPS_STORAGE_ERROR_NOT_FOUND) {
         gWiiMenuSetResolution = gSetResolution;
         WUPSStorageAPI::Store(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution);
         WUPSStorageAPI::SaveStorage();
+    } else {
+        // Validate the loaded value
+        resolutionValid = false;
+        for (auto res : validResolutions) {
+            if (gWiiMenuSetResolution == res) {
+                resolutionValid = true;
+                break;
+            }
+        }
+        if (!resolutionValid) {
+            gWiiMenuSetResolution = DEFAULT_WII_MENU_SET_RESOLUTION_VALUE;
+            DEBUG_FUNCTION_LINE_ERR("Invalid resolution read from storage. Using default value instead.");
+        }
     }
 
+    // Load and validate gForwarderDisplayOverride
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID, gForwarderDisplayOverride, DEFAULT_FORWARDER_DISPLAY_OVERRIDE);
+    if (gForwarderDisplayOverride < DISPLAY_OPTION_TV || gForwarderDisplayOverride >= DISPLAY_OPTION_COUNT) {
+        gForwarderDisplayOverride = DEFAULT_FORWARDER_DISPLAY_OVERRIDE;
+    }
 
+    // Load and validate gNotificationTheme
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(NOTIFICATION_THEME_CONFIG_ID, gNotificationTheme, DEFAULT_NOTIFICATION_THEME_VALUE);
+    if (gNotificationTheme < NOTIFICATION_THEME_OFF || gNotificationTheme >= NOTIFICATION_THEME_COUNT) {
+        gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
+    }
 
+    // Load and validate gPreserveSysconf
     WUPSStorageAPI::GetOrStoreDefault(PRESERVE_SYSCONF_CONFIG_ID, gPreserveSysconf, DEFAULT_PRESERVE_SYSCONF_VALUE);
 
+    // Load and validate gPermanentNetConfig
     WUPSStorageAPI::GetOrStoreDefault(PERMANENT_NET_CONFIG_CONFIG_ID, gPermanentNetConfig, DEFAULT_PERMANENT_NET_CONFIG_VALUE);
 
+    // Load and validate sLanguageSetting
     WUPSStorageAPI::GetOrStoreDefault(LANGUAGE_CONFIG_ID, sLanguageSetting, Language::System);
+    if (sLanguageSetting < Language::Japanese || sLanguageSetting >= LANGUAGE_COUNT) {
+        sLanguageSetting = Language::System;
+    }
 
     // Set the language that's currently used
     setLanguage(sLanguageSetting);

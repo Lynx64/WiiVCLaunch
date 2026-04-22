@@ -9,11 +9,13 @@ enum DisplayOption {
     DISPLAY_OPTION_DRC,
     DISPLAY_OPTION_BOTH,
     DISPLAY_OPTION_CHOOSE,
+    DISPLAY_OPTION_COUNT,
 };
 
 enum DisplayOptionsOrder {
     DISPLAY_OPTIONS_ORDER_DEFAULT,
     DISPLAY_OPTIONS_ORDER_RECENT,
+    DISPLAY_OPTIONS_ORDER_COUNT,
 };
 
 //values must align with corresponding values in enum AVMTvResolution in <avm/tv.h> in wut
@@ -34,6 +36,7 @@ enum NotificationTheme {
     NOTIFICATION_THEME_OFF,
     NOTIFICATION_THEME_DARK,
     NOTIFICATION_THEME_LIGHT,
+    NOTIFICATION_THEME_COUNT,
 };
 
 #define SET_RESOLUTION_4_3_MODIFIER 100
