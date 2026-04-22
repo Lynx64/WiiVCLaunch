@@ -1,9 +1,10 @@
+// Machine translated and copied from Nintendo's translations. Feel free to fix any obvious errors.
 .select_a_display_option_more_options = u"\nElige dónde quieres que\nse muestren las imágenes.\n\n\n\uE07D Más opciones"
 ,.select_a_display_option_detect_tv = u"\nElige dónde quieres que\nse muestren las imágenes.\n\n\n\uE07D Detectar TV"
 ,.use_drc_as_controller2 = u"Usar \uE087 como mando"
 ,.tv_only2 = u"Solo TV"
 ,.tv_and_drc2 = u"TV y \uE087"
-,.drc_screen_only2 = u"Solo pantalla \uE087"
+,.drc_screen_only2 = u"Solo pantalla del \uE087"
 ,.autolaunching = "Inicio automático: %s"
 ,.use_gamepad_as_controller = "Usar GamePad como mando"
 ,.tv_only = "Solo TV"
