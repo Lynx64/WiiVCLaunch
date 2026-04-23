@@ -1,7 +1,7 @@
 // Machine translated and copied from Nintendo's translations. Feel free to fix any obvious errors.
 .select_a_display_option_more_options = u"\n\nWähle eine Darstellungsoption aus.\n\n\n\uE07D Weitere Optionen"
 ,.select_a_display_option_detect_tv = u"\n\nWähle eine Darstellungsoption aus.\n\n\n\uE07D Fernseher erkennen"
-,.use_drc_as_controller2 = u"\uE087 als Controller verwenden"
+,.use_drc_as_controller2 = u"\uE087 als Controller\nverwenden"
 ,.tv_only2 = u"Nur TV"
 ,.tv_and_drc2 = u"TV und \uE087"
 ,.drc_screen_only2 = u"Nur \uE087-Bildschirm"
