@@ -16,16 +16,15 @@ void backupSysconf()
         return;
     }
 
-    try {
-        bool copySuccess = std::filesystem::copy_file(SYSCONF_NAND_PATH,
-                                                      SYSCONF_SD_PATH,
-                                                      std::filesystem::copy_options::overwrite_existing);
-        if (copySuccess) {
-            WUPSStorageAPI::Store("restoreSysconf", true);
-            WUPSStorageAPI::SaveStorage();
-        }
-    } catch (const std::exception &e) {
-        DEBUG_FUNCTION_LINE_ERR("Copy exception: %s", e.what());
+    std::error_code ec;
+    if (std::filesystem::copy_file(SYSCONF_NAND_PATH,
+                                   SYSCONF_SD_PATH,
+                                   std::filesystem::copy_options::overwrite_existing,
+                                   ec)) {
+        WUPSStorageAPI::Store("restoreSysconf", true);
+        WUPSStorageAPI::SaveStorage();
+    } else if (ec) {
+        DEBUG_FUNCTION_LINE_ERR("Copy failed: %s", ec.message().c_str());
     }
 
     Mocha_UnmountFS("slccmpt01");
@@ -39,14 +38,14 @@ void restoreSysconfIfNeeded()
     if (!restoreCheck)
         return;
 
-    try {
-        auto fileSize = std::filesystem::file_size(SYSCONF_SD_PATH);
-        if (fileSize != 0x4000) {
-            DEBUG_FUNCTION_LINE_ERR("SD's SYSCONF is wrong size, should be 16,384 bytes");
-            return;
-        }
-    } catch (const std::exception &e) {
-        DEBUG_FUNCTION_LINE_ERR("File size exception: %s", e.what());
+    std::error_code ec;
+    auto fileSize = std::filesystem::file_size(SYSCONF_SD_PATH, ec);
+    if (ec) {
+        DEBUG_FUNCTION_LINE_ERR("File size check failed: %s", ec.message().c_str());
+        return;
+    }
+    if (fileSize != 0x4000) {
+        DEBUG_FUNCTION_LINE_ERR("SD's SYSCONF is wrong size, should be 16,384 bytes");
         return;
     }
 
@@ -58,17 +57,16 @@ void restoreSysconfIfNeeded()
         return;
     }
 
-    try {
-        bool copySuccess = std::filesystem::copy_file(SYSCONF_SD_PATH,
-                                                      SYSCONF_NAND_PATH,
-                                                      std::filesystem::copy_options::overwrite_existing);
-        if (copySuccess) {
-            WUPSStorageAPI::Store("restoreSysconf", false);
-            WUPSStorageAPI::SaveStorage();
-            std::filesystem::remove(SYSCONF_SD_PATH);
-        }
-    } catch (const std::exception &e) {
-        DEBUG_FUNCTION_LINE_ERR("Copy exception: %s", e.what());
+    ec.clear();
+    if (std::filesystem::copy_file(SYSCONF_SD_PATH,
+                                   SYSCONF_NAND_PATH,
+                                   std::filesystem::copy_options::overwrite_existing,
+                                   ec)) {
+        WUPSStorageAPI::Store("restoreSysconf", false);
+        WUPSStorageAPI::SaveStorage();
+        std::filesystem::remove(SYSCONF_SD_PATH, ec);
+    } else if (ec) {
+        DEBUG_FUNCTION_LINE_ERR("Copy failed: %s", ec.message().c_str());
     }
 
     Mocha_UnmountFS("slccmpt01");
