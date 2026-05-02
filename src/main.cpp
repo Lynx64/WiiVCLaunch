@@ -349,8 +349,9 @@ DECL_FUNCTION(int32_t, MCP_TitleList, int32_t handle, uint32_t *outTitleCount, M
                 if (titleList[i].appType == MCP_APP_TYPE_GAME_WII) titleList[i].appType = MCP_APP_TYPE_GAME;
             }
         } else {
-            DEBUG_FUNCTION_LINE_WARN("Either real_MCP_TitleList did not return 0 (returned %d)", result);
-            DEBUG_FUNCTION_LINE_WARN("or outTitleCount == nullptr or titleList == nullptr");
+            // don't need to log this
+            // DEBUG_FUNCTION_LINE_WARN("Either real_MCP_TitleList did not return 0 (returned %d)", result);
+            // DEBUG_FUNCTION_LINE_WARN("or outTitleCount == nullptr or titleList == nullptr");
         }
     }
 
