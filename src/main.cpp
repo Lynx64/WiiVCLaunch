@@ -214,7 +214,7 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
 
 static void showAutolaunchNotification(int32_t displayOption)
 {
-    char text[41];
+    char text[54];
     snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
     NotificationModule_AddInfoNotification(text);
 }
