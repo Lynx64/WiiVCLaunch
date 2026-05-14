@@ -34,9 +34,9 @@ where [ENVIRONMENT] is the actual environment name (most likely 'aroma').
 ## Usage
 Open the plugin config menu by pressing L, DPAD Down and Minus on the GamePad, Pro Controller or Classic Controller, or B, DPAD Down and Minus on a Wii Remote.
 
-Custom dialogs:
+Custom dialogs:<br/>
 <img width="427" height="240" alt="A screenshot of a Wii U pop-up window. It displays the text 'Select a display option.' At the bottom of the window are two buttons: one on the left labeled 'Use GamePad as controller' and one on the right labeled 'TV Only.'" src="https://github.com/user-attachments/assets/84cbc733-c8ab-4941-9059-a8217b908616" />
-While this is displayed you can, on any controller:
+<br/>While this is displayed you can, on any controller:
 - Press B to cancel
 - Press +/START to set the display to only the Wii U GamePad screen
 
