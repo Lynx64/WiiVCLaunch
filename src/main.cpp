@@ -224,7 +224,9 @@ static void setResolution(int32_t resolution)
     if (resolution == SET_RESOLUTION_NONE) return;
 
     if (resolution == SET_RESOLUTION_576I || resolution == SET_RESOLUTION_576I_43) {
+        // If the region is already PAL then this function will do nothing, so we need to follow up with a set resolution
         AVMSetTVVideoRegion(AVM_TV_VIDEO_REGION_PAL, TVEGetCurrentPort(), AVM_TV_RESOLUTION_576I);
+        AVMSetTVScanResolution(AVM_TV_RESOLUTION_576I);
     } else {
         if (resolution > SET_RESOLUTION_4_3_MODIFIER) {
             AVMSetTVScanResolution((AVMTvResolution) (resolution - SET_RESOLUTION_4_3_MODIFIER));
