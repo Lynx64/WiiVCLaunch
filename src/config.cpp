@@ -223,6 +223,7 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                 {Language::German,       "Deutsch"},
                 {Language::Spanish,      "Español (Perú)"},
                 {Language::SpanishSpain, "Español (España)"},
+                {Language::Portuguese,   "Portuguese"},
                 {Language::System,       "System"}};
 
         otherSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(LANGUAGE_CONFIG_ID,
