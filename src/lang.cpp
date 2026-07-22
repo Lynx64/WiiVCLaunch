@@ -8,6 +8,9 @@
 
 static Language sLanguage = Language::English;
 
+static constexpr TranslatedStrings pt_PT = {
+#include "pt_PT.lang"
+};
 static constexpr TranslatedStrings de_DE = {
 #include "de_DE.lang"
 };
