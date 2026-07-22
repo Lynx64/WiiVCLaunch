@@ -102,6 +102,8 @@ void setLanguage(Language newLanguage) {
 
 const TranslatedStrings& getTranslatedStrings() {
     switch (sLanguage) {
+        case Language::Portuguese:
+            return pt_PT;
         case Language::German:
             return de_DE;
         case Language::Spanish:
