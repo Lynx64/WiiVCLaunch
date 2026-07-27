@@ -8,8 +8,8 @@
 
 static Language sLanguage = Language::English;
 
-static constexpr TranslatedStrings pt_PT = {
-#include "pt_PT.lang"
+static constexpr TranslatedStrings en_GB = {
+#include "en_GB.lang"
 };
 static constexpr TranslatedStrings de_DE = {
 #include "de_DE.lang"
@@ -20,8 +20,8 @@ static constexpr TranslatedStrings es_PE = {
 static constexpr TranslatedStrings es_ES = {
 #include "es_ES.lang"
 };
-static constexpr TranslatedStrings en_GB = {
-#include "en_GB.lang"
+static constexpr TranslatedStrings pt_PT = {
+#include "pt_PT.lang"
 };
 
 // https://github.com/PretendoNetwork/Inkay/blob/68afedb5ee07832cd0b57be7f2ea3fd092f80233/common/sysconfig.cpp#L28
@@ -102,14 +102,14 @@ void setLanguage(Language newLanguage) {
 
 const TranslatedStrings& getTranslatedStrings() {
     switch (sLanguage) {
-        case Language::Portuguese:
-            return pt_PT;
         case Language::German:
             return de_DE;
         case Language::Spanish:
             return es_PE;
         case Language::SpanishSpain:
             return es_ES;
+        case Language::Portuguese:
+            return pt_PT;
         case Language::English:
         default:
             return en_GB;
