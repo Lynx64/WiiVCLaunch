@@ -44,4 +44,6 @@
 #define SYSCONF_LANGUAGE_CONFIG_ID              "sysconfLanguage"
 #define SYSCONF_EULA_CONFIG_ID                  "sysconfEula"
 
+#define LANGUAGE_CONFIG_ID                      "language"
+
 void initConfig();

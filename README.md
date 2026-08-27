@@ -1,14 +1,16 @@
+[![GitHub release](https://img.shields.io/github/release/Lynx64/WiiVCLaunch.svg?label=Download)](https://github.com/Lynx64/WiiVCLaunch/releases/latest)   
+
 # Wii VC Launch
 Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 
 ## Features
-### Custom dialogs
+### Custom dialogs <sub>*(applies to Wii VC only)*</sub>
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
 - Autolaunch into a specific display option bypassing all dialogs
   - Keep A pressed when launching a game to force open the Select a display option dialogs
   - Falls back to the GamePad screen if TV not connected
 
-### Original built in dialogs
+### Original built in dialogs <sub>*(applies to Wii Mode & Wii VC)*</sub>
 - Enables the GamePad sensor bar for built in dialogs
 - Allow using a Pro Controller to Select a display option in the built in dialogs
 
@@ -17,31 +19,56 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
   - Can be set separately for Wii VC and Wii Mode
 
 ## Installation
-Download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`<br/>
-Copy the `WiiVCLaunch.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`<br/>
-where [ENVIRONMENT] is the actual environment name (most likely 'aroma')
+For convenience, you can download Wii VC Launch directly on your console from the [Homebrew App Store](https://github.com/fortheusers/hb-appstore).
+
+<p align="center">
+  <a href="https://hb-app.store/wiiu/WiiVCLaunch">
+    <img width="335" alt="Get it on the Homebrew App Store!" src="https://github.com/user-attachments/assets/4471a846-9e8f-4a93-9a5c-a252e70d053a" />
+  </a>
+</p>
+
+Alternatively, download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`.<br/>
+Copy the `WiiVCLaunch.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`,<br/>
+where [ENVIRONMENT] is the actual environment name (most likely 'aroma').
 
 ## Usage
 Open the plugin config menu by pressing L, DPAD Down and Minus on the GamePad, Pro Controller or Classic Controller, or B, DPAD Down and Minus on a Wii Remote.
+
+Custom dialogs:<br/>
+<img width="427" height="240" alt="A screenshot of a Wii U pop-up window. It displays the text 'Select a display option.' At the bottom of the window are two buttons: one on the left labeled 'Use GamePad as controller' and one on the right labeled 'TV Only.'" src="https://github.com/user-attachments/assets/84cbc733-c8ab-4941-9059-a8217b908616" />
+<br/>While this is displayed you can, on any controller:
+- Press B to cancel
+- Press +/START to set the display to only the Wii U GamePad screen
 
 If custom dialogs are disabled:
 - Autolaunch cannot be used
 - Set resolution can still be used
 
+"Preserve SYSCONF on Wii VC title launch" and "Permanent Wii Internet Settings" (Disables Wii Internet Connection Settings overwrite) are useful in combination with [Priiloader](https://github.com/DacoTaco/priiloader) or Wii homebrew that can change the Internet Connection settings. If you don't have Priiloader installed you don't need to worry about them and can leave them both on `false`.
+
 ## Building
+Remember to add `--recurse-submodules` to your clone command to get the submodules.
+If you have already cloned the project you can run `git submodule update --init --recursive`.
+
 For building you need:
-- [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [wut](https://github.com/devkitPro/wut)
+- [wups](https://github.com/wiiu-env/WiiUPluginSystem)
 - [libnotifications](https://github.com/wiiu-env/libnotifications)
-- [libmocha](https://github.com/wiiu-env/libmocha)
+- [libfunctionpatcher](https://github.com/wiiu-env/libfunctionpatcher)
+- ~~[libmocha](https://github.com/wiiu-env/libmocha)~~ *(available as a submodule, usage recommended)*
+
+It is recommended to use the `libmocha` git submodule included in this repository.
 
 then run `make`
 
 ## Building using the Dockerfile
 It's possible to use a docker image for building. This way you don't need anything installed on your host system other than Docker.
 
+Remember to add `--recurse-submodules` to your clone command to get the submodules.
+If you have already cloned the project you can run `git submodule update --init --recursive`.
+
 ```
-# Build docker image (only needed once)
+# Build docker image (only needed once or if the Dockerfile changes)
 docker build . -t wiivclaunch-builder
 
 # make

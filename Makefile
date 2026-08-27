@@ -22,14 +22,14 @@ WUMS_ROOT := $(DEVKITPRO)/wums
 #-------------------------------------------------------------------------------
 TARGET		:=	WiiVCLaunch
 BUILD		:=	build
-SOURCES		:=	src
+SOURCES		:=	src src/lang
 DATA		:=	data
-INCLUDES	:=	src
+INCLUDES	:=	src src/lang
 
 #-------------------------------------------------------------------------------
 # options for code generation
 #-------------------------------------------------------------------------------
-CFLAGS	:=	-Wall -O3 -ffunction-sections \
+CFLAGS	:=	-Wall -O2 -ffunction-sections \
 			$(MACHDEP)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ -D__WUPS__ 
@@ -49,13 +49,16 @@ CXXFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
 CFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
 endif
 
-LIBS	:= -lmocha -lnotifications -lwups -lwut
+LIBS	:= -lfunctionpatcher -lmocha -lnotifications -lwups -lwut
+
+# Use the libmocha submodule.
+EXTERNAL_LIBMOCHA_DIR := $(TOPDIR)/external/libmocha
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT) $(WUT_ROOT)/usr
+LIBDIRS	:= $(EXTERNAL_LIBMOCHA_DIR) $(PORTLIBS) $(WUMS_ROOT) $(WUPS_ROOT) $(WUT_ROOT)
 
 #-------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -108,6 +111,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 all: $(BUILD)
 
 $(BUILD):
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR)
 	@$(shell [ ! -d $(BUILD) ] && mkdir -p $(BUILD))
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
@@ -115,6 +119,10 @@ $(BUILD):
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).wps $(TARGET).elf
+
+clean-externals:
+	@echo clean external libraries ...
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR) clean
 
 #-------------------------------------------------------------------------------
 else

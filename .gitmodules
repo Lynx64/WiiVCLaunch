@@ -1,0 +1,3 @@
+[submodule "external/libmocha"]
+	path = external/libmocha
+	url = https://github.com/wiiu-env/libmocha.git

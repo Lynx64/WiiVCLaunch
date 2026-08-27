@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Build binary
+        run: |
+          docker build . -t wiivclaunch-builder
+          docker run --rm -v ${PWD}:/project wiivclaunch-builder make
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: WiiVCLaunch
+          path: '*.wps'
+          if-no-files-found: error
