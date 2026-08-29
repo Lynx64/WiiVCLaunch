@@ -34,21 +34,6 @@ WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
 
-// Gets called ONCE when the plugin was loaded
-INITIALIZE_PLUGIN()
-{
-    initConfig();
-    initNotifications();
-    restoreSysconfIfNeeded();
-    FunctionPatcher_InitLibrary();
-}
-
-DEINITIALIZE_PLUGIN()
-{
-    NotificationModule_DeInitLibrary();
-    FunctionPatcher_DeInitLibrary();
-}
-
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
 static OSDynLoad_Module erreulaModule                                               = nullptr;
@@ -63,6 +48,179 @@ static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                      
 static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
 static bool sUserCancelledCustomDialogs = false;
+
+static bool sShowingDialog_0224D734 = false;
+
+bool isTvConnectedForCompat()
+{
+    if (TVEGetCurrentPort() == TVE_PORT_HDMI) {
+        TVEHdmiState hdmiState = TVE_HDMI_STATE_HTPG_OFF;
+        AVMGetHDMIState(&hdmiState);
+        if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA) {
+            return false;
+        }
+    }
+    // default to true so tv options are always displayed if non-hdmi is used
+    return true;
+}
+
+static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
+{
+    // the GamePad icon doesn't look good on the notification's small font size
+    switch (displayOption)
+    {
+    case DISPLAY_OPTION_USE_DRC:
+        return getTranslatedStrings().use_gamepad_as_controller;
+    case DISPLAY_OPTION_TV:
+        return getTranslatedStrings().tv_only.data();
+    case DISPLAY_OPTION_BOTH:
+        return getTranslatedStrings().tv_and_gamepad;
+    case DISPLAY_OPTION_DRC:
+        return getTranslatedStrings().gamepad_screen_only;
+    default:
+        return "";
+    }
+}
+
+static void showAutolaunchNotification(int32_t displayOption)
+{
+    char text[54];
+    snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
+    NotificationModule_AddInfoNotification(text);
+}
+
+// same function is at 0224D824 on US, 0224D60C on JP
+DECL_FUNCTION(void, men_EU_FUN_0224D734, uint32_t *buffer)
+{
+    DEBUG_FUNCTION_LINE_INFO("men_EU_FUN_0224D734");
+    sShowingDialog_0224D734 = true;
+    return real_men_EU_FUN_0224D734(buffer);
+}
+
+static PatchedFunctionHandle sPatchedFunctionHandle_men_EU_FUN_0224D734 = 0;
+static PatchedFunctionHandle sPatchedFunctionHandle_men_US_FUN_0224D824 = 0;
+static PatchedFunctionHandle sPatchedFunctionHandle_men_JP_FUN_0224D60C = 0;
+
+// same function is at 022165a4 on US. JP is same as EU but we will do it separately for version number checks
+DECL_FUNCTION(uint32_t, men_EU_FUN_022164B4, uint32_t *buffer)
+{
+    uint32_t result = real_men_EU_FUN_022164B4(buffer);
+    if (sShowingDialog_0224D734) {
+        sShowingDialog_0224D734 = false;
+        if (isTvConnectedForCompat()) {
+            result = 5; // 5 = both screens
+            showAutolaunchNotification(DISPLAY_OPTION_BOTH);
+        } else {
+            result = 4; // 4 = gamepad only
+            showAutolaunchNotification(DISPLAY_OPTION_DRC);
+        }
+    }
+    return result;
+}
+
+static PatchedFunctionHandle sPatchedFunctionHandle_men_EU_FUN_022164B4 = 0;
+static PatchedFunctionHandle sPatchedFunctionHandle_men_US_FUN_022165A4 = 0;
+static PatchedFunctionHandle sPatchedFunctionHandle_men_JP_FUN_022164B4 = 0;
+
+// Gets called ONCE when the plugin was loaded
+INITIALIZE_PLUGIN()
+{
+    initConfig();
+    initNotifications();
+    restoreSysconfIfNeeded();
+    FunctionPatcher_InitLibrary();
+
+    // TODO: Check that the men.rpx has not been replaced (e.g. with root.rpx or one on the SD card)
+
+    constexpr uint64_t TARGET_TITLE_IDS_JP[] {0x0005001010040000};
+    constexpr uint64_t TARGET_TITLE_IDS_US[] {0x0005001010040100};
+    constexpr uint64_t TARGET_TITLE_IDS_EU[] {0x0005001010040200};
+
+    function_replacement_data_t functionData_men_EU_FUN_0224D734 REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_0224D734, TARGET_TITLE_IDS_EU, 1, "men.rpx", 0x24D734, 257, 257);
+    FunctionPatcherStatus functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_EU_FUN_0224D734, &sPatchedFunctionHandle_men_EU_FUN_0224D734, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+
+    function_replacement_data_t functionData_men_US_FUN_0224D824 REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_0224D734, TARGET_TITLE_IDS_US, 1, "men.rpx", 0x24D824, 277, 277);
+    functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_US_FUN_0224D824, &sPatchedFunctionHandle_men_US_FUN_0224D824, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+
+    function_replacement_data_t functionData_men_JP_FUN_0224D60C REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_0224D734, TARGET_TITLE_IDS_JP, 1, "men.rpx", 0x24D60C, 226, 226);
+    functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_JP_FUN_0224D60C, &sPatchedFunctionHandle_men_JP_FUN_0224D60C, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+
+    function_replacement_data_t functionData_men_EU_FUN_022164B4 REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_022164B4, TARGET_TITLE_IDS_EU, 1, "men.rpx", 0x2164B4, 257, 257);
+    functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_EU_FUN_022164B4, &sPatchedFunctionHandle_men_EU_FUN_022164B4, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+
+    function_replacement_data_t functionData_men_US_FUN_022165A4 REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_022164B4, TARGET_TITLE_IDS_US, 1, "men.rpx", 0x2165A4, 277, 277);
+    functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_US_FUN_022165A4, &sPatchedFunctionHandle_men_US_FUN_022165A4, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+
+    function_replacement_data_t functionData_men_JP_FUN_022164B4 REPLACE_FUNCTION_OF_EXECUTABLE_BY_ADDRESS_WITH_VERSION(men_EU_FUN_022164B4, TARGET_TITLE_IDS_JP, 1, "men.rpx", 0x2164B4, 226, 226);
+    functionPatchResult = FunctionPatcher_AddFunctionPatch(&functionData_men_JP_FUN_022164B4, &sPatchedFunctionHandle_men_JP_FUN_022164B4, nullptr);
+    if (functionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddFunctionPatch returned %d", functionPatchResult);
+    }
+}
+
+DEINITIALIZE_PLUGIN()
+{
+    if (sPatchedFunctionHandle_men_EU_FUN_0224D734 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_EU_FUN_0224D734);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_EU_FUN_0224D734 = 0;
+    }
+    if (sPatchedFunctionHandle_men_US_FUN_0224D824 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_US_FUN_0224D824);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_US_FUN_0224D824 = 0;
+    }
+    if (sPatchedFunctionHandle_men_JP_FUN_0224D60C != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_JP_FUN_0224D60C);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_JP_FUN_0224D60C = 0;
+    }
+    if (sPatchedFunctionHandle_men_EU_FUN_022164B4 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_EU_FUN_022164B4);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_EU_FUN_022164B4 = 0;
+    }
+    if (sPatchedFunctionHandle_men_US_FUN_022165A4 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_US_FUN_022165A4);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_US_FUN_022165A4 = 0;
+    }
+    if (sPatchedFunctionHandle_men_JP_FUN_022164B4 != 0) {
+        FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_JP_FUN_022164B4);
+        if (removeFunctionPatchResult != FUNCTION_PATCHER_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("RemoveFunctionPatch returned %d", removeFunctionPatchResult);
+        }
+        sPatchedFunctionHandle_men_JP_FUN_022164B4 = 0;
+    }
+
+    NotificationModule_DeInitLibrary();
+    FunctionPatcher_DeInitLibrary();
+}
 
 // remap buttons functions copied from https://github.com/wiiu-env/WiiUPluginLoaderBackend/blob/cb527add76c95bff3fb1ddef7a016fec3db4c497/source/utils/ConfigUtils.cpp#LL35C7-L35C7
 static uint32_t remapWiiMoteButtons(uint32_t buttons)
@@ -177,24 +335,6 @@ uint32_t readCombinedInput(VPADStatus &vpadStatus, VPADReadError &vpadError, KPA
     return buttonsHeld;
 }
 
-static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
-{
-    // the GamePad icon doesn't look good on the notification's small font size
-    switch (displayOption)
-    {
-    case DISPLAY_OPTION_USE_DRC:
-        return getTranslatedStrings().use_gamepad_as_controller;
-    case DISPLAY_OPTION_TV:
-        return getTranslatedStrings().tv_only.data();
-    case DISPLAY_OPTION_BOTH:
-        return getTranslatedStrings().tv_and_gamepad;
-    case DISPLAY_OPTION_DRC:
-        return getTranslatedStrings().gamepad_screen_only;
-    default:
-        return "";
-    }
-}
-
 static const char16_t * displayOptionToString16(int32_t displayOption)
 {
     switch (displayOption)
@@ -210,13 +350,6 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
     default:
         return u"";
     }
-}
-
-static void showAutolaunchNotification(int32_t displayOption)
-{
-    char text[54];
-    snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
-    NotificationModule_AddInfoNotification(text);
 }
 
 static void setResolution(int32_t resolution)
@@ -469,13 +602,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
             uint32_t positionI = 0;
             uint32_t skippedOptionsCount = 0;
-            bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
-            if (TVEGetCurrentPort() == TVE_PORT_HDMI) {
-                TVEHdmiState hdmiState = TVE_HDMI_STATE_HTPG_OFF;
-                AVMGetHDMIState(&hdmiState);
-                if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA)
-                    tvConnected = false;
-            }
+            bool tvConnected = isTvConnectedForCompat();
 
             for (uint32_t recentI = 0; recentI < 4; recentI++) {
                 if (!DRC_USE && recent[recentI] == DISPLAY_OPTION_USE_DRC)
