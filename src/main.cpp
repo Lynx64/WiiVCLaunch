@@ -35,21 +35,6 @@ WUPS_PLUGIN_LICENSE("GPLv3");
 
 WUPS_USE_WUT_DEVOPTAB();
 
-// Gets called ONCE when the plugin was loaded
-INITIALIZE_PLUGIN()
-{
-    initConfig();
-    initNotifications();
-    restoreSysconfIfNeeded();
-    FunctionPatcher_InitLibrary();
-}
-
-DEINITIALIZE_PLUGIN()
-{
-    NotificationModule_DeInitLibrary();
-    FunctionPatcher_DeInitLibrary();
-}
-
 extern "C" int32_t CMPTAcctSetDrcCtrlEnabled(int32_t enable);
 
 static OSDynLoad_Module erreulaModule                                               = nullptr;
@@ -64,6 +49,21 @@ static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                      
 static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
 static bool sUserCancelledCustomDialogs = false;
+
+// Gets called ONCE when the plugin was loaded
+INITIALIZE_PLUGIN()
+{
+    initConfig();
+    initNotifications();
+    restoreSysconfIfNeeded();
+    FunctionPatcher_InitLibrary();
+}
+
+DEINITIALIZE_PLUGIN()
+{
+    NotificationModule_DeInitLibrary();
+    FunctionPatcher_DeInitLibrary();
+}
 
 static const char * displayOptionToStringWithoutIcons(int32_t displayOption)
 {
