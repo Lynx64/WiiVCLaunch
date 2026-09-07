@@ -6,6 +6,7 @@
 #include "logger.h"
 #include "mocha.h"
 #include "notifications.h"
+#include "rpx_patch.h"
 #include "sysconf_preserver.h"
 
 #include <avm/tv.h>
@@ -50,7 +51,7 @@ static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
 static bool sUserCancelledCustomDialogs = false;
 
-static bool sShowingDialog_0224D734 = false;
+static bool sShowingOriginalSelectDisplayDialog = false;
 
 bool isTvConnectedForCompat()
 {
@@ -94,7 +95,7 @@ static void showAutolaunchNotification(int32_t displayOption)
 DECL_FUNCTION(void, men_EU_FUN_0224D734, uint32_t *buffer)
 {
     DEBUG_FUNCTION_LINE_INFO("men_EU_FUN_0224D734");
-    sShowingDialog_0224D734 = true;
+    sShowingOriginalSelectDisplayDialog = true;
     return real_men_EU_FUN_0224D734(buffer);
 }
 
@@ -106,8 +107,8 @@ static PatchedFunctionHandle sPatchedFunctionHandle_men_JP_FUN_0224D60C = 0;
 DECL_FUNCTION(uint32_t, men_EU_FUN_022164B4, uint32_t *buffer)
 {
     uint32_t result = real_men_EU_FUN_022164B4(buffer);
-    if (sShowingDialog_0224D734) {
-        sShowingDialog_0224D734 = false;
+    if (sShowingOriginalSelectDisplayDialog) {
+        sShowingOriginalSelectDisplayDialog = false;
         if (isTvConnectedForCompat()) {
             result = 5; // 5 = both screens
             showAutolaunchNotification(DISPLAY_OPTION_BOTH);
@@ -123,15 +124,24 @@ static PatchedFunctionHandle sPatchedFunctionHandle_men_EU_FUN_022164B4 = 0;
 static PatchedFunctionHandle sPatchedFunctionHandle_men_US_FUN_022165A4 = 0;
 static PatchedFunctionHandle sPatchedFunctionHandle_men_JP_FUN_022164B4 = 0;
 
-// Gets called ONCE when the plugin was loaded
-INITIALIZE_PLUGIN()
+static void setupMenRpxPatches()
 {
-    initConfig();
-    initNotifications();
-    restoreSysconfIfNeeded();
-    FunctionPatcher_InitLibrary();
+    // Check that the men.rpx has not been replaced (e.g. with root.rpx or one on the SD card)
+    const char rootRpxCheck[] = "/vol/external01";
+    OSDynLoad_NotifyData menRpx;
 
-    // TODO: Check that the men.rpx has not been replaced (e.g. with root.rpx or one on the SD card)
+    if (!findRpl("men.rpx", menRpx)) {
+        DEBUG_FUNCTION_LINE_INFO("Couldn't find men.rpx, probably replaced, skipping patches");
+        return;
+    }
+
+    // Minus 1 to not include the null terminator
+    if (findMem(menRpx.dataAddr, menRpx.dataSize, rootRpxCheck, sizeof(rootRpxCheck) - 1)) {
+        DEBUG_FUNCTION_LINE_INFO("men.rpx has been replaced, skipping patches");
+        return;
+    }
+
+    DEBUG_FUNCTION_LINE_INFO("Adding Men Rpx patches");
 
     constexpr uint64_t TARGET_TITLE_IDS_JP[] {0x0005001010040000};
     constexpr uint64_t TARGET_TITLE_IDS_US[] {0x0005001010040100};
@@ -174,7 +184,7 @@ INITIALIZE_PLUGIN()
     }
 }
 
-DEINITIALIZE_PLUGIN()
+static void removeMenRpxPatches()
 {
     if (sPatchedFunctionHandle_men_EU_FUN_0224D734 != 0) {
         FunctionPatcherStatus removeFunctionPatchResult = FunctionPatcher_RemoveFunctionPatch(sPatchedFunctionHandle_men_EU_FUN_0224D734);
@@ -218,7 +228,19 @@ DEINITIALIZE_PLUGIN()
         }
         sPatchedFunctionHandle_men_JP_FUN_022164B4 = 0;
     }
+}
 
+// Gets called ONCE when the plugin was loaded
+INITIALIZE_PLUGIN()
+{
+    initConfig();
+    initNotifications();
+    restoreSysconfIfNeeded();
+    FunctionPatcher_InitLibrary();
+}
+
+DEINITIALIZE_PLUGIN()
+{
     NotificationModule_DeInitLibrary();
     FunctionPatcher_DeInitLibrary();
 }
@@ -349,6 +371,7 @@ ON_APPLICATION_START()
         OSGetTitleID() == 0x0005001010040200) { // Wii U Menu EUR
         gInWiiUMenu = true;
         sLaunchingWiiGame = false;
+        setupMenRpxPatches();
     } else {
         gInWiiUMenu = false;
     }
@@ -703,6 +726,8 @@ ON_APPLICATION_ENDS()
         }
         sPatchedFunctionHandle1 = 0;
     }
+
+    removeMenRpxPatches();
 #ifdef DEBUG
     deinitLogging();
 #endif
