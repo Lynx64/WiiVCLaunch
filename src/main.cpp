@@ -91,6 +91,7 @@ static void showAutolaunchNotification(int32_t displayOption)
     NotificationModule_AddInfoNotification(text);
 }
 
+// Called in a loop while the select display dialog is shown.
 // same function is at 0224D824 on US, 0224D60C on JP
 DECL_FUNCTION(void, men_EU_FUN_0224D734, uint32_t *buffer)
 {
@@ -103,12 +104,14 @@ static PatchedFunctionHandle sPatchedFunctionHandle_men_EU_FUN_0224D734 = 0;
 static PatchedFunctionHandle sPatchedFunctionHandle_men_US_FUN_0224D824 = 0;
 static PatchedFunctionHandle sPatchedFunctionHandle_men_JP_FUN_0224D60C = 0;
 
-// same function is at 022165a4 on US. JP is same as EU but we will do it separately for version number checks
+// Returns a number based on the dialog selection made, or 0 if none made on this frame.
+// same function is at 022165A4 on US. JP is same as EU but we will do it separately for version number checks
 DECL_FUNCTION(uint32_t, men_EU_FUN_022164B4, uint32_t *buffer)
 {
     uint32_t result = real_men_EU_FUN_022164B4(buffer);
     if (sShowingOriginalSelectDisplayDialog) {
         sShowingOriginalSelectDisplayDialog = false;
+        // Crashes if a TV option selected and TV not connected with Program Halt Line Number: 160
         if (isTvConnectedForCompat()) {
             result = 5; // 5 = both screens
             showAutolaunchNotification(DISPLAY_OPTION_BOTH);
