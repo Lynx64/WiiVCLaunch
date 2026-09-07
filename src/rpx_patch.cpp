@@ -32,7 +32,7 @@ bool getRplInfo(std::vector<OSDynLoad_NotifyData> &rpls) {
 bool findRpl(const std::string_view &name, OSDynLoad_NotifyData &foundRpl) {
     std::vector<OSDynLoad_NotifyData> rplInfo;
     if (!getRplInfo(rplInfo)) {
-        DEBUG_FUNCTION_LINE("Failed to get RPL info");
+        DEBUG_FUNCTION_LINE_ERR("Failed to get RPL info");
         return false;
     }
 
