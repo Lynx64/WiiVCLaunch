@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config/WUPSConfigItemFloatRange.h"
 #include "globals.hpp"
 #include "lang.h"
 #include "logger.h"
@@ -9,11 +10,14 @@
 #include <wups/config/WUPSConfigItemMultipleValues.h>
 #include <wups/config/WUPSConfigItemStub.h>
 
+#include <notifications/notifications.h>
+
 #include <string_view>
 
 WUPS_USE_STORAGE("WiiVCLaunch");
 
 static Language sLanguageSetting = Language::System;
+static float sNotificationDuration = 2.55f;
 
 void boolItemCallback(ConfigItemBoolean *item, bool newValue)
 {
@@ -67,6 +71,14 @@ void languageChangedCallback(ConfigItemMultipleValues *item, uint32_t newValue)
     sLanguageSetting = static_cast<Language>(newValue);
     setLanguage(sLanguageSetting);
     WUPSStorageAPI::Store(LANGUAGE_CONFIG_ID, sLanguageSetting);
+}
+
+void notificationDurationChangedCallback(ConfigItemFloatRange *item, float newValue)
+{
+    sNotificationDuration = newValue;
+    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
+                                       NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
+                                       sNotificationDuration);
 }
 
 WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle rootHandle)
@@ -202,6 +214,16 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                                         gNotificationTheme,
                                                                         notificationThemeValues,
                                                                         &multipleValueItemCallback));
+
+        // Notification duration
+        otherSettings.add(WUPSConfigItemFloatRange::Create("notifDuration",
+                                                           "Notification duration",
+                                                           2.55f,
+                                                           sNotificationDuration,
+                                                           2.0f,
+                                                           5.0f,
+                                                           0.05f,
+                                                           &notificationDurationChangedCallback));
 
         // Preserve SYSCONF
         otherSettings.add(WUPSConfigItemBoolean::Create(PRESERVE_SYSCONF_CONFIG_ID,
