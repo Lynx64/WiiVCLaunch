@@ -1,5 +1,7 @@
+#include "notifications.h"
 #include "globals.hpp"
 #include "logger.h"
+
 #include <notifications/notifications.h>
 
 void applyNotificationThemeSetting()
