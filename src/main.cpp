@@ -542,9 +542,7 @@ DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, void *confBuffer, uint3
 DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
 {
     if (enable == 0 && !sLaunchingWiiGame) {
-        int8_t sensorBarEnabled = 0;
-        VPADBASEGetSensorBarSetting(VPAD_CHAN_0, &sensorBarEnabled);
-        if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
+        if (VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
             if (gNotificationTheme != NOTIFICATION_THEME_OFF)
                 NotificationModule_AddInfoNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
         }
