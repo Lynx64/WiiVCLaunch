@@ -38,3 +38,21 @@ void initNotifications()
                                        2.50f);
     applyNotificationThemeSetting();
 }
+
+void showSensorBarNotification(const char *text)
+{
+    if (gNotificationTheme == NOTIFICATION_THEME_OFF) {
+        return;
+    }
+
+    NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
+                                       NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
+                                       10.0f);
+
+    NotificationModuleStatus result = NotificationModule_AddInfoNotification(text);
+    if (result != NOTIFICATION_MODULE_RESULT_SUCCESS) {
+        DEBUG_FUNCTION_LINE_ERR("AddInfoNotification returned %s (%d)",
+                                NotificationModule_GetStatusStr(result),
+                                result);
+    }
+}
