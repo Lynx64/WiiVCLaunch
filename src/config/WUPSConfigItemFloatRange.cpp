@@ -35,18 +35,18 @@ void WUPSConfigItemFloatRange_onInput(void *context, WUPSConfigSimplePadData inp
 
 int32_t WUPSConfigItemFloatRange_getCurrentValueDisplay(void *context, char *out_buf, int32_t out_size) {
     auto *item = (ConfigItemFloatRange *) context;
-    snprintf(out_buf, out_size, "%.1f", item->value);
+    snprintf(out_buf, out_size, "%g", item->value);
     return 0;
 }
 
 int32_t WUPSConfigItemFloatRange_getCurrentValueSelectedDisplay(void *context, char *out_buf, int32_t out_size) {
     auto *item = (ConfigItemFloatRange *) context;
     if (item->value == item->minValue) {
-        snprintf(out_buf, out_size, "  %.1f >", item->value);
+        snprintf(out_buf, out_size, "  %g >", item->value);
     } else if (item->value == item->maxValue) {
-        snprintf(out_buf, out_size, "< %.1f  ", item->value);
+        snprintf(out_buf, out_size, "< %g  ", item->value);
     } else {
-        snprintf(out_buf, out_size, "< %.1f >", item->value);
+        snprintf(out_buf, out_size, "< %g >", item->value);
     }
     return 0;
 }
