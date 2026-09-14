@@ -35,6 +35,6 @@ void initNotifications()
 
     NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
                                        NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
-                                       2.55f);
+                                       2.50f);
     applyNotificationThemeSetting();
 }

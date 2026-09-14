@@ -17,7 +17,7 @@
 WUPS_USE_STORAGE("WiiVCLaunch");
 
 static Language sLanguageSetting = Language::System;
-static float sNotificationDuration = 2.55f;
+static float sNotificationDuration = 2.50f;
 
 void boolItemCallback(ConfigItemBoolean *item, bool newValue)
 {
@@ -218,11 +218,11 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         // Notification duration
         otherSettings.add(WUPSConfigItemFloatRange::Create("notifDuration",
                                                            "Notification duration",
-                                                           2.55f,
+                                                           2.50f,
                                                            sNotificationDuration,
                                                            2.0f,
-                                                           5.0f,
-                                                           0.05f,
+                                                           3.0f,
+                                                           0.01f,
                                                            &notificationDurationChangedCallback));
 
         // Preserve SYSCONF
