@@ -543,8 +543,7 @@ DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
 {
     if (enable == 0 && !sLaunchingWiiGame) {
         if (VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                NotificationModule_AddInfoNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
+            showSensorBarNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
         }
         sInputRedirectionActive = true;
     }
