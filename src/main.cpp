@@ -49,6 +49,7 @@ static bool (*dyn_ErrEulaIsDecideSelectRightButtonError)()                      
 static bool sLaunchingWiiGame = false;
 static bool sInputRedirectionActive = false;
 static bool sUserCancelledCustomDialogs = false;
+static int32_t sForce_4_3_Calls = 0;
 
 // Gets called ONCE when the plugin was loaded
 INITIALIZE_PLUGIN()
@@ -123,8 +124,10 @@ static void setResolution(int32_t resolution)
         }
     }
 
-    if (resolution > SET_RESOLUTION_4_3_MODIFIER)
+    if (resolution > SET_RESOLUTION_4_3_MODIFIER) {
         AVMSetTVAspectRatio(AVM_TV_ASPECT_RATIO_4_3);
+        sForce_4_3_Calls = 3; // force 4:3 for the next 3 calls to AVMGetTVAspectRatio
+    }
 }
 
 static void setDisplay(int32_t displayOption)
@@ -562,6 +565,17 @@ DECL_FUNCTION(int32_t, WPADProbe, WPADChan chan, WPADExtensionType *outExtension
     return result;
 }
 
+DECL_FUNCTION(BOOL, AVMGetTVAspectRatio, AVMTvAspectRatio *outAspectRatio)
+{
+    BOOL result = real_AVMGetTVAspectRatio(outAspectRatio);
+    if (result && outAspectRatio && sForce_4_3_Calls > 0) {
+        *outAspectRatio = AVM_TV_ASPECT_RATIO_4_3;
+        sForce_4_3_Calls--;
+        DEBUG_FUNCTION_LINE_INFO("Forcing 4:3. Force 4:3 calls remaining: %d", sForce_4_3_Calls);
+    }
+    return result;
+}
+
 ON_APPLICATION_REQUESTS_EXIT()
 {
     sInputRedirectionActive = false;
@@ -593,3 +607,6 @@ WUPS_MUST_REPLACE_FOR_PROCESS(WPADProbe, WUPS_LOADER_LIBRARY_PADSCORE, WPADProbe
 WUPS_MUST_REPLACE_FOR_PROCESS(CMPTExPrepareLaunch, WUPS_LOADER_LIBRARY_NN_CMPT, CMPTExPrepareLaunch, WUPS_FP_TARGET_PROCESS_GAME);
 
 WUPS_MUST_REPLACE(MCP_LaunchCompat, WUPS_LOADER_LIBRARY_COREINIT, MCP_LaunchCompat);
+
+// Also called in AVMExit by Root process
+WUPS_MUST_REPLACE_FOR_PROCESS(AVMGetTVAspectRatio, WUPS_LOADER_LIBRARY_AVM, AVMGetTVAspectRatio, WUPS_FP_TARGET_PROCESS_ALL);
