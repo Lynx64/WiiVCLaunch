@@ -46,7 +46,7 @@ int32_t WUPSConfigItemFloatRange_getCurrentValueSelectedDisplay(void *context, c
     } else if (item->value == item->maxValue) {
         snprintf(out_buf, out_size, "< %g  ", item->value);
     } else {
-        snprintf(out_buf, out_size, "\uE083\uE084-+%g < %g >", item->stepValue * 10.0f, item->value);
+        snprintf(out_buf, out_size, "(\uE083/\uE084 -+%g) < %g >", item->stepValue * 10.0f, item->value);
     }
     return 0;
 }
