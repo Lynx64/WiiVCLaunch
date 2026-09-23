@@ -101,11 +101,27 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
     }
 }
 
-static void showAutolaunchNotification(int32_t displayOption)
+bool isTvConnectedForCompat()
 {
+    if (TVEGetCurrentPort() == TVE_PORT_HDMI) {
+        TVEHdmiState hdmiState = TVE_HDMI_STATE_HTPG_OFF;
+        AVMGetHDMIState(&hdmiState);
+        if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA) {
+            return false;
+        }
+    }
+    // default to true if non-hdmi is used
+    return true;
+}
+
+static void formatAndShowAutolaunchNotification(int32_t displayOption)
+{
+    if (!isTvConnectedForCompat()) {
+        displayOption = DISPLAY_OPTION_DRC;
+    }
     char text[54];
     snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
-    NotificationModule_AddInfoNotification(text);
+    showAutolaunchingNotification(text);
 }
 
 static void setResolution(int32_t resolution)
@@ -290,13 +306,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         //check autolaunch
         if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                showAutolaunchNotification(gAutolaunchDRCSupported);
+            formatAndShowAutolaunchNotification(gAutolaunchDRCSupported);
             return ACP_RESULT_SUCCESS;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                showAutolaunchNotification(gAutolaunchNoDRCSupport);
+            formatAndShowAutolaunchNotification(gAutolaunchNoDRCSupport);
             return ACP_RESULT_SUCCESS;
         }
     } else {
@@ -360,13 +374,7 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
 
             uint32_t positionI = 0;
             uint32_t skippedOptionsCount = 0;
-            bool tvConnected = true; //default to true so tv options are always displayed if non-hdmi is used
-            if (TVEGetCurrentPort() == TVE_PORT_HDMI) {
-                TVEHdmiState hdmiState = TVE_HDMI_STATE_HTPG_OFF;
-                AVMGetHDMIState(&hdmiState);
-                if (hdmiState != TVE_HDMI_STATE_DONE && hdmiState != TVE_HDMI_STATE_3RDA)
-                    tvConnected = false;
-            }
+            bool tvConnected = isTvConnectedForCompat();
 
             for (uint32_t recentI = 0; recentI < 4; recentI++) {
                 if (!DRC_USE && recent[recentI] == DISPLAY_OPTION_USE_DRC)
@@ -545,11 +553,8 @@ DECL_FUNCTION(int32_t, MCP_LaunchCompat, int32_t handle, void *confBuffer, uint3
 DECL_FUNCTION(int32_t, CMPTAcctSetDrcCtrlEnabled, int32_t enable)
 {
     if (enable == 0 && !sLaunchingWiiGame) {
-        int8_t sensorBarEnabled = 0;
-        VPADBASEGetSensorBarSetting(VPAD_CHAN_0, &sensorBarEnabled);
-        if (!sensorBarEnabled && VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                NotificationModule_AddInfoNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
+        if (VPADSetSensorBar(VPAD_CHAN_0, true) == 0) {
+            showSensorBarNotification(getTranslatedStrings().gamepad_sensor_bar_enabled);
         }
         sInputRedirectionActive = true;
     }

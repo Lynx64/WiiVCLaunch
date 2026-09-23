@@ -32,10 +32,15 @@
 #define FORWARDER_DISPLAY_OVERRIDE_CONFIG_ID    "forwarderDisplayOverride"
 
 // Other
-#define NOTIFICATION_THEME_CONFIG_ID            "notificationTheme"
 #define PRESERVE_SYSCONF_CONFIG_ID              "preserveSysconf"
 #define PERMANENT_NET_CONFIG_CONFIG_ID          "permanentNetConfig"
-
 #define LANGUAGE_CONFIG_ID                      "language"
+
+// Notification customisation
+#define NOTIFICATION_THEME_CONFIG_ID            "notificationTheme"
+#define AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID   "autolaunchingNotifEnabled"
+#define AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID "autolaunchingNotifDurationShort"
+#define SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID      "sensorBarNotifEnabled"
+#define SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID "sensorBarNotifDurationSecs"
 
 void initConfig();

@@ -1,4 +1,5 @@
 #include "config.h"
+#include "config/WUPSConfigItemFloatRange.h"
 #include "globals.hpp"
 #include "lang.h"
 #include "logger.h"
@@ -29,6 +30,15 @@ void boolItemCallback(ConfigItemBoolean *item, bool newValue)
     } else if (std::string_view(PERMANENT_NET_CONFIG_CONFIG_ID) == item->identifier) {
         gPermanentNetConfig = newValue;
         WUPSStorageAPI::Store(item->identifier, gPermanentNetConfig);
+    } else if (std::string_view(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID) == item->identifier) {
+        gAutolaunchingNotifEnabled = newValue;
+        WUPSStorageAPI::Store(item->identifier, gAutolaunchingNotifEnabled);
+    } else if (std::string_view(AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID) == item->identifier) {
+        gAutolaunchingNotifDurationShort = newValue;
+        WUPSStorageAPI::Store(item->identifier, gAutolaunchingNotifDurationShort);
+    } else if (std::string_view(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID) == item->identifier) {
+        gSensorBarNotifEnabled = newValue;
+        WUPSStorageAPI::Store(item->identifier, gSensorBarNotifEnabled);
     }
 }
 
@@ -67,6 +77,12 @@ void languageChangedCallback(ConfigItemMultipleValues *item, uint32_t newValue)
     sLanguageSetting = static_cast<Language>(newValue);
     setLanguage(sLanguageSetting);
     WUPSStorageAPI::Store(LANGUAGE_CONFIG_ID, sLanguageSetting);
+}
+
+void sensorBarNotifDurationChangedCallback(ConfigItemFloatRange *item, float newValue)
+{
+    gSensorBarNotifDurationSecs = newValue;
+    WUPSStorageAPI::Store(SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID, gSensorBarNotifDurationSecs);
 }
 
 WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle rootHandle)
@@ -190,18 +206,61 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         // Category: Other settings
         auto otherSettings = WUPSConfigCategory::Create(strings.other_settings);
 
+        // Sub Category: Customise notifications
+        auto notificationSettings = WUPSConfigCategory::Create("Customise notifications");
+
         // Notification theme
         const WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
                 {NOTIFICATION_THEME_OFF,   strings.theme_off},
                 {NOTIFICATION_THEME_DARK,  strings.theme_dark},
                 {NOTIFICATION_THEME_LIGHT, strings.theme_light}};
 
-        otherSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(NOTIFICATION_THEME_CONFIG_ID,
+        notificationSettings.add(WUPSConfigItemMultipleValues::CreateFromValue(NOTIFICATION_THEME_CONFIG_ID,
                                                                         strings.notification_theme,
                                                                         DEFAULT_NOTIFICATION_THEME_VALUE,
                                                                         gNotificationTheme,
                                                                         notificationThemeValues,
                                                                         &multipleValueItemCallback));
+
+        // Auto-launching notif enabled
+        notificationSettings.add(WUPSConfigItemBoolean::CreateEx(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID,
+                                                        strings.autolaunching,
+                                                        true,
+                                                        gAutolaunchingNotifEnabled,
+                                                        &boolItemCallback,
+                                                        "show",
+                                                        "hide"));
+
+        // Auto-launching notif duration
+        notificationSettings.add(WUPSConfigItemBoolean::CreateEx(AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID,
+                                                        " \u2517 Duration",
+                                                        true,
+                                                        gAutolaunchingNotifDurationShort,
+                                                        &boolItemCallback,
+                                                        "short",
+                                                        "long"));
+
+        // Sensor Bar notif enabled
+        notificationSettings.add(WUPSConfigItemBoolean::CreateEx(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID,
+                                                        strings.gamepad_sensor_bar_enabled,
+                                                        true,
+                                                        gSensorBarNotifEnabled,
+                                                        &boolItemCallback,
+                                                        "show",
+                                                        "hide"));
+
+        // Sensor Bar notification duration
+        notificationSettings.add(WUPSConfigItemFloatRange::Create(SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID,
+                                                           " \u2517 Duration (seconds)",
+                                                           10.0f,
+                                                           gSensorBarNotifDurationSecs,
+                                                           2.0f,
+                                                           30.0f,
+                                                           1.0f,
+                                                           &sensorBarNotifDurationChangedCallback));
+
+        otherSettings.add(std::move(notificationSettings));
+        // End of Sub Category: Customise notifications
 
         // Preserve SYSCONF
         otherSettings.add(WUPSConfigItemBoolean::Create(PRESERVE_SYSCONF_CONFIG_ID,
@@ -330,6 +389,23 @@ void initConfig()
     WUPSStorageAPI::GetOrStoreDefault(LANGUAGE_CONFIG_ID, sLanguageSetting, Language::System);
     if (sLanguageSetting < Language::Japanese || sLanguageSetting >= LANGUAGE_COUNT) {
         sLanguageSetting = Language::System;
+    }
+
+    // Load gAutolaunchingNotifEnabled
+    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID, gAutolaunchingNotifEnabled, true);
+
+    // Load gAutolaunchingNotifDurationShort
+    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID, gAutolaunchingNotifDurationShort, true);
+
+    // Load gSensorBarNotifEnabled
+    WUPSStorageAPI::GetOrStoreDefault(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID, gSensorBarNotifEnabled, true);
+
+    // Load and validate gSensorBarNotifDurationSecs
+    WUPSStorageAPI::GetOrStoreDefault(SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID, gSensorBarNotifDurationSecs, 10.0f);
+    if (gSensorBarNotifDurationSecs < 2.0f) {
+        gSensorBarNotifDurationSecs = 2.0f;
+    } else if (gSensorBarNotifDurationSecs > 30.0f) {
+        gSensorBarNotifDurationSecs = 30.0f;
     }
 
     // Set the language that's currently used

@@ -55,8 +55,14 @@ extern int32_t gWiiMenuSetResolution;
 extern int32_t gForwarderDisplayOverride;
 
 // Other
-extern int32_t gNotificationTheme;
 extern bool gPreserveSysconf;
 extern bool gPermanentNetConfig;
+
+// Notification customisation
+extern int32_t gNotificationTheme;
+extern bool gAutolaunchingNotifEnabled;
+extern bool gAutolaunchingNotifDurationShort;
+extern bool gSensorBarNotifEnabled;
+extern float gSensorBarNotifDurationSecs;
 
 extern bool gInWiiUMenu;
