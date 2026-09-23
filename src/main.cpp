@@ -100,11 +100,11 @@ static const char16_t * displayOptionToString16(int32_t displayOption)
     }
 }
 
-static void showAutolaunchNotification(int32_t displayOption)
+static void formatAndShowAutolaunchNotification(int32_t displayOption)
 {
     char text[54];
     snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
-    NotificationModule_AddInfoNotification(text);
+    showAutolaunchingNotification(text);
 }
 
 static void setResolution(int32_t resolution)
@@ -287,13 +287,11 @@ DECL_FUNCTION(int32_t, ACPGetLaunchMetaXml, ACPMetaXml *metaXml)
         //check autolaunch
         if (DRC_USE && gAutolaunchDRCSupported != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchDRCSupported);
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                showAutolaunchNotification(gAutolaunchDRCSupported);
+            formatAndShowAutolaunchNotification(gAutolaunchDRCSupported);
             return ACP_RESULT_SUCCESS;
         } else if (!DRC_USE && gAutolaunchNoDRCSupport != DISPLAY_OPTION_CHOOSE) {
             setDisplay(gAutolaunchNoDRCSupport);
-            if (gNotificationTheme != NOTIFICATION_THEME_OFF)
-                showAutolaunchNotification(gAutolaunchNoDRCSupport);
+            formatAndShowAutolaunchNotification(gAutolaunchNoDRCSupport);
             return ACP_RESULT_SUCCESS;
         }
     } else {

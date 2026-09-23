@@ -15,8 +15,14 @@ int32_t gWiiMenuSetResolution = DEFAULT_WII_MENU_SET_RESOLUTION_VALUE;
 int32_t gForwarderDisplayOverride = DEFAULT_FORWARDER_DISPLAY_OVERRIDE;
 
 // Other
-int32_t gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
 bool gPreserveSysconf = DEFAULT_PRESERVE_SYSCONF_VALUE;
 bool gPermanentNetConfig = DEFAULT_PERMANENT_NET_CONFIG_VALUE;
+
+// Notification customisation
+int32_t gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
+bool gAutolaunchingNotifEnabled = true;
+bool gAutolaunchingNotifDurationShort = true;
+bool gSensorBarNotifEnabled = true;
+float gSensorBarNotifDurationSecs = 10.0f;
 
 bool gInWiiUMenu = false;
