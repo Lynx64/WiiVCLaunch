@@ -120,7 +120,7 @@ static void formatAndShowAutolaunchNotification(int32_t displayOption)
         displayOption = DISPLAY_OPTION_DRC;
     }
     char text[54];
-    snprintf(text, sizeof(text), getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
+    snprintf(text, sizeof(text), "%s: %s", getTranslatedStrings().autolaunching, displayOptionToStringWithoutIcons(displayOption));
     showAutolaunchingNotification(text);
 }
 

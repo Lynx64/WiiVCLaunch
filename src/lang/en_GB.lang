@@ -4,7 +4,7 @@
 ,.tv_only2 = u"TV Only"
 ,.tv_and_drc2 = u"TV and \uE087"
 ,.drc_screen_only2 = u"\uE087 screen only"
-,.autolaunching = "Autolaunching: %s"
+,.autolaunching = "Auto-launching"
 ,.use_gamepad_as_controller = "Use GamePad as controller"
 ,.tv_only = "TV Only"
 ,.tv_and_gamepad = "TV and GamePad"

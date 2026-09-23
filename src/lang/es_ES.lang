@@ -5,7 +5,7 @@
 ,.tv_only2 = u"Solo TV"
 ,.tv_and_drc2 = u"TV y \uE087"
 ,.drc_screen_only2 = u"Solo pantalla del \uE087"
-,.autolaunching = "Inicio automático: %s"
+,.autolaunching = "Inicio automático"
 ,.use_gamepad_as_controller = "Usar GamePad como mando"
 ,.tv_only = "Solo TV"
 ,.tv_and_gamepad = "TV y GamePad"
