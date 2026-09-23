@@ -116,7 +116,7 @@ bool isTvConnectedForCompat()
 
 static void formatAndShowAutolaunchNotification(int32_t displayOption)
 {
-    if (!isTvConnectedForCompat()) {
+    if (displayOption != DISPLAY_OPTION_USE_DRC && !isTvConnectedForCompat()) {
         displayOption = DISPLAY_OPTION_DRC;
     }
     char text[54];
