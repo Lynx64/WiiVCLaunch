@@ -2,7 +2,11 @@
 #include "globals.hpp"
 #include "logger.h"
 
+#include <coreinit/time.h>
+
 #include <notifications/notifications.h>
+
+static OSTime sSensorBarCooldown = 0;
 
 void applyNotificationThemeSetting()
 {
@@ -41,6 +45,12 @@ void showSensorBarNotification(const char *text)
     if (!gSensorBarNotifEnabled) {
         return;
     }
+
+    // Don't create multiple sensor bar notifications at once.
+    if (sSensorBarCooldown > OSGetSystemTime()) {
+        return;
+    }
+    sSensorBarCooldown = OSGetSystemTime() + OSSecondsToTicks(gSensorBarNotifDurationSecs);
 
     NotificationModule_SetDefaultValue(NOTIFICATION_MODULE_NOTIFICATION_TYPE_INFO,
                                        NOTIFICATION_MODULE_DEFAULT_OPTION_DURATION_BEFORE_FADE_OUT,
