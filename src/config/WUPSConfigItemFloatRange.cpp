@@ -42,11 +42,11 @@ int32_t WUPSConfigItemFloatRange_getCurrentValueDisplay(void *context, char *out
 int32_t WUPSConfigItemFloatRange_getCurrentValueSelectedDisplay(void *context, char *out_buf, int32_t out_size) {
     auto *item = (ConfigItemFloatRange *) context;
     if (item->value == item->minValue) {
-        snprintf(out_buf, out_size, "(\uE083/\uE084 -+%g)    %g >", item->stepValue * 10.0f, item->value);
+        snprintf(out_buf, out_size, "(\uE083\uE084 -+%g)     %g >", item->stepValue * 10.0f, item->value);
     } else if (item->value == item->maxValue) {
-        snprintf(out_buf, out_size, "(\uE083/\uE084 -+%g)  < %g  ", item->stepValue * 10.0f, item->value);
+        snprintf(out_buf, out_size, "(\uE083\uE084 -+%g)   < %g  ", item->stepValue * 10.0f, item->value);
     } else {
-        snprintf(out_buf, out_size, "(\uE083/\uE084 -+%g)  < %g >", item->stepValue * 10.0f, item->value);
+        snprintf(out_buf, out_size, "(\uE083\uE084 -+%g)   < %g >", item->stepValue * 10.0f, item->value);
     }
     return 0;
 }
