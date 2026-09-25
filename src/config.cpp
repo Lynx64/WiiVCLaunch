@@ -211,7 +211,6 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
 
         // Notification theme
         const WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
-                {NOTIFICATION_THEME_OFF,   strings.theme_off},
                 {NOTIFICATION_THEME_DARK,  strings.theme_dark},
                 {NOTIFICATION_THEME_LIGHT, strings.theme_light}};
 
