@@ -33,7 +33,7 @@ enum SetResolution {
 };
 
 enum NotificationTheme {
-    NOTIFICATION_THEME_OFF,
+    NOTIFICATION_THEME_OFF, /* not used anymore since adding individual notif hide toggles */
     NOTIFICATION_THEME_DARK,
     NOTIFICATION_THEME_LIGHT,
     NOTIFICATION_THEME_COUNT,

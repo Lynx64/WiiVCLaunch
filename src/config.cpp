@@ -311,6 +311,8 @@ void initConfig()
     WUPSConfigAPIOptionsV1 configOptions = {.name = "Wii VC Launch"};
     WUPSConfigAPI_Init(configOptions, ConfigMenuOpenedCallback, ConfigMenuClosedCallback);
 
+    bool wantsToSave = false;
+
     // Load and validate gAutolaunchDRCSupported
     WUPSStorageAPI::GetOrStoreDefault<int32_t>(AUTOLAUNCH_DRC_SUPPORTED_CONFIG_ID, gAutolaunchDRCSupported, DEFAULT_AUTOLAUNCH_DRC_SUPPORTED_VALUE);
     if (gAutolaunchDRCSupported < DISPLAY_OPTION_USE_DRC || gAutolaunchDRCSupported >= DISPLAY_OPTION_COUNT) {
@@ -351,7 +353,7 @@ void initConfig()
     if (WUPSStorageAPI::Get(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution) == WUPS_STORAGE_ERROR_NOT_FOUND) {
         gWiiMenuSetResolution = gSetResolution;
         WUPSStorageAPI::Store(WII_MENU_SET_RESOLUTION_CONFIG_ID, gWiiMenuSetResolution);
-        WUPSStorageAPI::SaveStorage();
+        wantsToSave = true;
     } else {
         // Validate the loaded value
         resolutionValid = false;
@@ -391,14 +393,33 @@ void initConfig()
         sLanguageSetting = Language::System;
     }
 
+    // Migrate old notification 'off' value to individual toggles
+    bool migrateNotificationOffValue = false;
+    if (gNotificationTheme == NOTIFICATION_THEME_OFF) {
+        gNotificationTheme = DEFAULT_NOTIFICATION_THEME_VALUE;
+        migrateNotificationOffValue = true;
+    }
+
     // Load gAutolaunchingNotifEnabled
-    WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID, gAutolaunchingNotifEnabled, true);
+    if (WUPSStorageAPI::Get(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID, gAutolaunchingNotifEnabled) == WUPS_STORAGE_ERROR_NOT_FOUND) {
+        if (migrateNotificationOffValue) {
+            gAutolaunchingNotifEnabled = false;
+        }
+        WUPSStorageAPI::Store(AUTOLAUNCHING_NOTIF_ENABLED_CONFIG_ID, gAutolaunchingNotifEnabled);
+        wantsToSave = true;
+    }
 
     // Load gAutolaunchingNotifDurationShort
     WUPSStorageAPI::GetOrStoreDefault(AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID, gAutolaunchingNotifDurationShort, true);
 
     // Load gSensorBarNotifEnabled
-    WUPSStorageAPI::GetOrStoreDefault(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID, gSensorBarNotifEnabled, true);
+    if (WUPSStorageAPI::Get(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID, gSensorBarNotifEnabled) == WUPS_STORAGE_ERROR_NOT_FOUND) {
+        if (migrateNotificationOffValue) {
+            gSensorBarNotifEnabled = false;
+        }
+        WUPSStorageAPI::Store(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID, gSensorBarNotifEnabled);
+        wantsToSave = true;
+    }
 
     // Load and validate gSensorBarNotifDurationSecs
     WUPSStorageAPI::GetOrStoreDefault(SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID, gSensorBarNotifDurationSecs, 10.0f);
@@ -410,4 +431,8 @@ void initConfig()
 
     // Set the language that's currently used
     setLanguage(sLanguageSetting);
+
+    if (wantsToSave) {
+        WUPSStorageAPI::SaveStorage();
+    }
 }
