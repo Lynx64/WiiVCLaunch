@@ -207,7 +207,7 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
         auto otherSettings = WUPSConfigCategory::Create(strings.other_settings);
 
         // Sub Category: Customise notifications
-        auto notificationSettings = WUPSConfigCategory::Create("Customise notifications");
+        auto notificationSettings = WUPSConfigCategory::Create(strings.customise_notifications);
 
         // Notification theme
         const WUPSConfigItemMultipleValues::ValuePair notificationThemeValues[] = {
@@ -227,17 +227,19 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                         true,
                                                         gAutolaunchingNotifEnabled,
                                                         &boolItemCallback,
-                                                        "show",
-                                                        "hide"));
+                                                        strings.show,
+                                                        strings.hide));
 
         // Auto-launching notif duration
+        char label[64];
+        snprintf(label, sizeof(label), " \u2517 %s", strings.duration);
         notificationSettings.add(WUPSConfigItemBoolean::CreateEx(AUTOLAUNCHING_NOTIF_DURATION_SHORT_CONFIG_ID,
-                                                        " \u2517 Duration",
+                                                        label,
                                                         true,
                                                         gAutolaunchingNotifDurationShort,
                                                         &boolItemCallback,
-                                                        "short",
-                                                        "long"));
+                                                        strings.duration_short,
+                                                        strings.duration_long));
 
         // Sensor Bar notif enabled
         notificationSettings.add(WUPSConfigItemBoolean::CreateEx(SENSOR_BAR_NOTIF_ENABLED_CONFIG_ID,
@@ -245,12 +247,13 @@ WUPSConfigAPICallbackStatus ConfigMenuOpenedCallback(WUPSConfigCategoryHandle ro
                                                         true,
                                                         gSensorBarNotifEnabled,
                                                         &boolItemCallback,
-                                                        "show",
-                                                        "hide"));
+                                                        strings.show,
+                                                        strings.hide));
 
         // Sensor Bar notification duration
+        snprintf(label, sizeof(label), " \u2517 %s (%s)", strings.duration, strings.seconds);
         notificationSettings.add(WUPSConfigItemFloatRange::Create(SENSOR_BAR_NOTIF_DURATION_SECS_CONFIG_ID,
-                                                           " \u2517 Duration (seconds)",
+                                                           label,
                                                            10.0f,
                                                            gSensorBarNotifDurationSecs,
                                                            2.0f,

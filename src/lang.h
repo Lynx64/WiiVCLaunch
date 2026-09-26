@@ -49,9 +49,13 @@ struct TranslatedStrings {
 
     std::string_view override_display;
 
-    std::string_view notification_theme;
+    std::string_view customise_notifications;
     std::string_view preserve_sysconf;
     std::string_view permanent_wii_internet_settings;
+
+    std::string_view notification_theme;
+    const char *     duration;
+    const char *     seconds;
 
     std::string_view select_each_time;
     std::string_view use_drc_as_controller;
@@ -77,6 +81,12 @@ struct TranslatedStrings {
     std::string_view theme_off;
     std::string_view theme_dark;
     std::string_view theme_light;
+
+    std::string_view show;
+    std::string_view hide;
+
+    std::string_view duration_short;
+    std::string_view duration_long;
 };
 
 void setLanguage(Language newLanguage);

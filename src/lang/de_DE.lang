@@ -26,9 +26,13 @@
 
 ,.override_display = "Override display"
 
-,.notification_theme = "Notification theme"
+,.customise_notifications = "Customise notifications"
 ,.preserve_sysconf = "Preserve SYSCONF on Wii VC title launch"
 ,.permanent_wii_internet_settings = "Permanent Wii Internet Settings"
+
+,.notification_theme = "Notification theme"
+,.duration = "Duration"
+,.seconds = "seconds"
 
 ,.select_each_time = "Select each time"
 ,.use_drc_as_controller = "Use \uE087 as controller"
@@ -54,3 +58,9 @@
 ,.theme_off = "Off"
 ,.theme_dark = "Dark"
 ,.theme_light = "Light"
+
+,.show = "show"
+,.hide = "hide"
+
+,.duration_short = "short"
+,.duration_long = "long"

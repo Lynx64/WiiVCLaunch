@@ -1,3 +1,4 @@
+// Text added in v2.1.0 is machine translated. Feel free to fix any obvious errors.
 .select_a_display_option_more_options = u"\n\nSeleccione una opcion de Pantalla.\n\n\n\uE07D Mas opciones"
 ,.select_a_display_option_detect_tv = u"\n\nSeleccione una opcion de Pantalla.\n\n\n\uE07D Detectar TV"
 ,.use_drc_as_controller2 = u"Usar \uE087 como control"
@@ -25,9 +26,13 @@
 
 ,.override_display = "Anulacion de la Pantalla"
 
-,.notification_theme = "Tema de notificacion"
+,.customise_notifications = "Personalizar notificaciones"
 ,.preserve_sysconf = "Preservar SYSCONF al iniciar un titulo de Wii VC"
 ,.permanent_wii_internet_settings = "Opcion permanente de Internet Wii"
+
+,.notification_theme = "Tema de notificacion"
+,.duration = "Duración"
+,.seconds = "segundos"
 
 ,.select_each_time = "Seleccione cada vez"
 ,.use_drc_as_controller = "Usar \uE087 como control"
@@ -53,3 +58,9 @@
 ,.theme_off = "Apagado"
 ,.theme_dark = "Oscuro"
 ,.theme_light = "Claro"
+
+,.show = "mostrar"
+,.hide = "ocultar"
+
+,.duration_short = "corto"
+,.duration_long = "largo"
