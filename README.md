@@ -48,6 +48,7 @@ If custom dialogs are disabled:
 Remember to add `--recurse-submodules` to your clone command to get the submodules.
 If you have already cloned the project you can run `git submodule update --init --recursive`.
 
+### Building locally
 For building you need:
 - [wut](https://github.com/devkitPro/wut)
 - [wups](https://github.com/wiiu-env/WiiUPluginSystem)
@@ -59,14 +60,11 @@ It is recommended to use the `libmocha` git submodule included in this repositor
 
 then run `make`
 
-## Building using the Dockerfile
-It's possible to use a docker image for building. This way you don't need anything installed on your host system other than Docker.
-
-Remember to add `--recurse-submodules` to your clone command to get the submodules.
-If you have already cloned the project you can run `git submodule update --init --recursive`.
+### Building using the Dockerfile
+It's possible to use a Docker image for building. This way you don't need anything installed on your host system other than Docker.
 
 ```
-# Build docker image (only needed once or if the Dockerfile changes)
+# Build Docker image (only needed once or if the Dockerfile changes)
 docker build . -t wiivclaunch-builder
 
 # make
@@ -75,3 +73,8 @@ docker run --rm -v ${PWD}:/project wiivclaunch-builder make
 # make clean
 docker run --rm -v ${PWD}:/project wiivclaunch-builder make clean
 ```
+
+### Makefile commands
+- `make`
+- `make clean`
+- `make clean-externals` - runs `clean` on each submodule
