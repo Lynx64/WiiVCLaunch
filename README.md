@@ -6,26 +6,24 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 ## Features
 ### Custom dialogs <sub>*(applies to Wii VC only)*</sub>
 - Select a display option (TV Only, TV and GamePad, etc.) with any controller
-- Autolaunch into a specific display option bypassing all dialogs
-  - Keep A pressed when launching a game to force open the Select a display option dialogs
+- Auto-launch into a specific display option bypassing all dialogs
+  - Keep A pressed when launching a game to force open the 'Select a display option' dialogs
   - Falls back to the GamePad screen if TV not connected
 
 ### Original built in dialogs <sub>*(applies to Wii Mode & Wii VC)*</sub>
-- Enables the GamePad sensor bar for built in dialogs
-- Allow using a Pro Controller to Select a display option in the built in dialogs
+- Enables the GamePad sensor bar for original select display dialogs
+- Allow using a Pro Controller to select a display option in the original dialogs
 
 ### Video
-- Set the resolution to 480p, 720p, 480i, or 576i (including 4:3 variants)
+- Set the resolution to 480p, 720p, 480i, 576i, 1080i, or 1080p (including 4:3 variants) temporarily for vWii
   - Can be set separately for Wii VC and Wii Mode
 
 ## Installation
-For convenience, you can download Wii VC Launch directly on your console from the [Homebrew App Store](https://github.com/fortheusers/hb-appstore).
+For convenience, you can download Wii VC Launch directly on your console from the [Homebrew App Store](https://github.com/fortheusers/hb-appstore). After installing/updating you need to restart your console for it to be loaded.
 
-<p align="center">
-  <a href="https://hb-app.store/wiiu/WiiVCLaunch">
-    <img width="335" alt="Get it on the Homebrew App Store!" src="https://github.com/user-attachments/assets/4471a846-9e8f-4a93-9a5c-a252e70d053a" />
-  </a>
-</p>
+<a href="https://hb-app.store/wiiu/WiiVCLaunch">
+  <img width="223" alt="Get it on the Homebrew App Store!" src="https://github.com/user-attachments/assets/4471a846-9e8f-4a93-9a5c-a252e70d053a" />
+</a>
 
 Alternatively, download the latest release from the [Releases page](https://github.com/Lynx64/WiiVCLaunch/releases/latest) by clicking on `WiiVCLaunch.wps`.<br/>
 Copy the `WiiVCLaunch.wps` file into `wiiu/environments/[ENVIRONMENT]/plugins`,<br/>
@@ -41,7 +39,7 @@ Custom dialogs:<br/>
 - Press +/START to set the display to only the Wii U GamePad screen
 
 If custom dialogs are disabled:
-- Autolaunch cannot be used
+- Auto-launch cannot be used
 - Set resolution can still be used
 
 "Preserve SYSCONF on Wii VC title launch" and "Permanent Wii Internet Settings" (Disables Wii Internet Connection Settings overwrite) are useful in combination with [Priiloader](https://github.com/DacoTaco/priiloader) or Wii homebrew that can change the Internet Connection settings. If you don't have Priiloader installed you don't need to worry about them and can leave them both on `false`.
