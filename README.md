@@ -78,3 +78,8 @@ docker run --rm -v ${PWD}:/project wiivclaunch-builder make clean
 - `make`
 - `make clean`
 - `make clean-externals` - runs `clean` on each submodule
+
+---
+<a href="https://ko-fi.com/U7U7NLVOD" target="_blank">
+  <img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" border="0" alt="Buy Me a Coffee at ko-fi.com" />
+</a>
