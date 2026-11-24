@@ -17,6 +17,7 @@ Wii U plugin to enhance launching Wii VC titles and Wii Mode.
 ### Video
 - Set the resolution to 480p, 720p, 480i, 576i, 1080i, or 1080p (including 4:3 variants) temporarily for vWii
   - Can be set separately for Wii VC and Wii Mode
+- Patches out the forced switch to 576i when using component on PAL
 
 ## Installation
 For convenience, you can download Wii VC Launch directly on your console from the [Homebrew App Store](https://github.com/fortheusers/hb-appstore). After installing/updating you need to restart your console for it to be loaded.
